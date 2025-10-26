@@ -1,0 +1,65 @@
+{
+  "request": "Test SPY neutral strategy",
+  "snapshot": {
+    "SPY": {
+      "symbol": "SPY",
+      "price": 473.35,
+      "iv": 0.21,
+      "spread": 0.379,
+      "ts": "2025-10-26T06:17:19.480445+00:00"
+    }
+  },
+  "plan": {
+    "strategy": "iron_condor",
+    "risk_budget": 1500.0,
+    "thesis": "Range-bound outlook; premium harvesting.",
+    "meta": {
+      "center_hint": "atm",
+      "width": 5
+    }
+  },
+  "order": {
+    "symbol": "SPY",
+    "strategy": "iron_condor",
+    "legs": [
+      {
+        "action": "sell",
+        "type": "call",
+        "strike": 483.4,
+        "qty": 3
+      },
+      {
+        "action": "buy",
+        "type": "call",
+        "strike": 488.4,
+        "qty": 3
+      },
+      {
+        "action": "sell",
+        "type": "put",
+        "strike": 463.4,
+        "qty": 3
+      },
+      {
+        "action": "buy",
+        "type": "put",
+        "strike": 458.4,
+        "qty": 3
+      }
+    ],
+    "risk_budget": 1500.0,
+    "thesis": "Range-bound outlook; premium harvesting.",
+    "ts": 1761459439.4804974,
+    "meta": {
+      "center_hint": "atm",
+      "width": 5
+    }
+  },
+  "gate": {
+    "ok": false,
+    "violations": [
+      "risk_budget exceeds 2% of equity (>1000)"
+    ]
+  },
+  "status": "blocked"
+}

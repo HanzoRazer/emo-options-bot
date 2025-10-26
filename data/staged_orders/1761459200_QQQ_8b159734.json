@@ -1,0 +1,56 @@
+{
+  "request": "QQQ could be volatile into earnings",
+  "snapshot": {
+    "QQQ": {
+      "symbol": "QQQ",
+      "price": 410.35,
+      "iv": 0.24,
+      "spread": 0.328,
+      "ts": "2025-10-26T06:13:20.412698+00:00"
+    },
+    "SPY": {
+      "symbol": "SPY",
+      "price": 476.89,
+      "iv": 0.21,
+      "spread": 0.382,
+      "ts": "2025-10-26T06:13:20.412732+00:00"
+    }
+  },
+  "plan": {
+    "strategy": "straddle",
+    "risk_budget": 1200.0,
+    "thesis": "Expecting larger realized volatility than implied.",
+    "meta": {
+      "atm": true
+    }
+  },
+  "order": {
+    "symbol": "QQQ",
+    "strategy": "straddle",
+    "legs": [
+      {
+        "action": "buy",
+        "type": "call",
+        "strike": 410.4,
+        "qty": 2
+      },
+      {
+        "action": "buy",
+        "type": "put",
+        "strike": 410.4,
+        "qty": 2
+      }
+    ],
+    "risk_budget": 1200.0,
+    "thesis": "Expecting larger realized volatility than implied.",
+    "ts": 1761459200.412805,
+    "meta": {
+      "atm": true
+    }
+  },
+  "gate": {
+    "ok": true,
+    "violations": []
+  },
+  "status": "ok"
+}

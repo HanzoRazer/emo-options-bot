@@ -1,0 +1,18 @@
+schema: emo_order_draft/v1
+created_ts: '2025-10-26T00:21:36.751507+00:00'
+symbol: SPY
+side: buy
+qty: 10.0
+order_type: market
+time_in_force: day
+limit_price: null
+strategy: momentum
+meta:
+  note: Phase 2 test order
+  created_via: cli
+  cli_version: 1.0.0
+language: en
+status: DRAFT
+created_by: emo_stage_order_client
+version: 1.0.0
+signature: b58b77e4783e140a

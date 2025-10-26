@@ -1,0 +1,51 @@
+{
+  "request": "Mildly bullish outlook on SPY; income preferred",
+  "snapshot": {
+    "SPY": {
+      "symbol": "SPY",
+      "price": 473.44,
+      "iv": 0.21,
+      "spread": 0.379,
+      "ts": "2025-10-26T06:39:17.632073+00:00"
+    }
+  },
+  "plan": {
+    "strategy": "put_credit_spread",
+    "risk_budget": 1000.0,
+    "thesis": "Mildly bullish; sell downside premium with defined risk.",
+    "meta": {
+      "delta": 0.2,
+      "width": 5
+    }
+  },
+  "order": {
+    "symbol": "SPY",
+    "strategy": "put_credit_spread",
+    "legs": [
+      {
+        "action": "sell",
+        "type": "put",
+        "strike": 459.2,
+        "qty": 2
+      },
+      {
+        "action": "buy",
+        "type": "put",
+        "strike": 454.2,
+        "qty": 2
+      }
+    ],
+    "risk_budget": 1000.0,
+    "thesis": "Mildly bullish; sell downside premium with defined risk.",
+    "ts": 1761460757.6321247,
+    "meta": {
+      "delta": 0.2,
+      "width": 5
+    }
+  },
+  "gate": {
+    "ok": true,
+    "violations": []
+  },
+  "status": "ok"
+}

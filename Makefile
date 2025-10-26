@@ -41,6 +41,7 @@ NC := \033[0m
 .PHONY: test test-enhanced demo-enhanced test-voice validate-system lint format security
 .PHONY: migrate run dashboard health
 .PHONY: docker-build docker-run deploy
+.PHONY: bump-patch bump-minor bump-major safe-tag patch minor major
 
 .DEFAULT_GOAL := help
 
@@ -185,6 +186,25 @@ else
 	@$(VENV_ACTIVATE) && pytest -v
 endif
 
+release-check: ## Run Phase 3 release readiness check
+	@echo "$(BLUE)Running Phase 3 release check...$(NC)"
+ifeq ($(OS),Windows_NT)
+	@powershell.exe -ExecutionPolicy Bypass -File "run_release_check.ps1"
+else
+	@chmod +x run_release_check.sh && ./run_release_check.sh
+endif
+
+release-check-verbose: ## Run Phase 3 release check with verbose output
+	@echo "$(BLUE)Running Phase 3 release check (verbose)...$(NC)"
+ifeq ($(OS),Windows_NT)
+	@powershell.exe -ExecutionPolicy Bypass -File "run_release_check.ps1" -Verbose
+else
+	@chmod +x run_release_check.sh && ./run_release_check.sh --verbose
+endif
+
+validate-phase3: release-check ## Validate Phase 3 production readiness
+	@echo "$(GREEN)Phase 3 validation complete!$(NC)"
+
 lint: ## Run code linting
 	@echo "$(BLUE)Running linter...$(NC)"
 ifeq ($(OS),Windows_NT)
@@ -271,3 +291,59 @@ else
 	@find . -type f -name "*.pyc" -delete 2>/dev/null || true
 endif
 	@echo "$(GREEN)Cleanup complete$(NC)"
+
+# ============================================================================
+# Version Management
+# ============================================================================
+
+bump-patch: ## Bump patch version and create git tag
+	@echo "$(BLUE)Bumping patch version...$(NC)"
+ifeq ($(OS),Windows_NT)
+	@$(VENV_ACTIVATE); python tools/git_tag_helper.py --bump patch
+else
+	@$(VENV_ACTIVATE) && python tools/git_tag_helper.py --bump patch
+endif
+
+bump-minor: ## Bump minor version and create git tag
+	@echo "$(BLUE)Bumping minor version...$(NC)"
+ifeq ($(OS),Windows_NT)
+	@$(VENV_ACTIVATE); python tools/git_tag_helper.py --bump minor
+else
+	@$(VENV_ACTIVATE) && python tools/git_tag_helper.py --bump minor
+endif
+
+bump-major: ## Bump major version and create git tag
+	@echo "$(BLUE)Bumping major version...$(NC)"
+ifeq ($(OS),Windows_NT)
+	@$(VENV_ACTIVATE); python tools/git_tag_helper.py --bump major
+else
+	@$(VENV_ACTIVATE) && python tools/git_tag_helper.py --bump major
+endif
+
+# Enhanced safe tagging with release gates
+safe-tag: ## Safe tagging with release-check gate and dry-run option
+	@echo "$(BLUE)Safe tagging with release gate...$(NC)"
+ifeq ($(OS),Windows_NT)
+	@$(VENV_ACTIVATE); python tools/git_tag_helper.py
+else
+	@$(VENV_ACTIVATE) && python tools/git_tag_helper.py
+endif
+
+# Shortcut aliases for common workflows
+patch: safe-tag ## Alias for safe-tag (default patch bump)
+
+minor: ## Safe minor version bump with release gate
+	@echo "$(BLUE)Safe minor version bump...$(NC)"
+ifeq ($(OS),Windows_NT)
+	@$(VENV_ACTIVATE); python tools/git_tag_helper.py --bump minor
+else
+	@$(VENV_ACTIVATE) && python tools/git_tag_helper.py --bump minor
+endif
+
+major: ## Safe major version bump with release gate
+	@echo "$(BLUE)Safe major version bump...$(NC)"
+ifeq ($(OS),Windows_NT)
+	@$(VENV_ACTIVATE); python tools/git_tag_helper.py --bump major
+else
+	@$(VENV_ACTIVATE) && python tools/git_tag_helper.py --bump major
+endif

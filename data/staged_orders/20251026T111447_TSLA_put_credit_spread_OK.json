@@ -1,0 +1,63 @@
+{
+  "request": {
+    "user_text": "bullish on tech",
+    "symbol": "TSLA",
+    "horizon_days": 7,
+    "context": {},
+    "locale": "en",
+    "created_at": "2025-10-26T11:14:47.458660Z"
+  },
+  "llm_view": {
+    "symbol": "TSLA",
+    "horizon_days": 7,
+    "view": "bullish",
+    "confidence": 0.62,
+    "notes": "MockLLM generated view"
+  },
+  "trade_plan": {
+    "strategy_type": "put_credit_spread",
+    "symbol": "TSLA",
+    "legs": [
+      {
+        "action": "sell",
+        "instrument": "put",
+        "strike": 100.0,
+        "quantity": 1,
+        "expiration": null
+      },
+      {
+        "action": "buy",
+        "instrument": "put",
+        "strike": 95.0,
+        "quantity": 1,
+        "expiration": null
+      }
+    ],
+    "target_credit": null,
+    "max_loss": 500.0,
+    "rationale": "Bullish view \u2192 sell downside skew via put credit spread",
+    "constraints": {
+      "max_risk_per_trade": 0.02,
+      "max_portfolio_risk": 0.1,
+      "min_option_oi": 100,
+      "max_spread_width": 5.0,
+      "min_dte": 5,
+      "max_dte": 45
+    },
+    "metadata": {
+      "llm_view": {
+        "symbol": "TSLA",
+        "horizon_days": 7,
+        "view": "bullish",
+        "confidence": 0.62,
+        "notes": "MockLLM generated view"
+      }
+    },
+    "created_at": "2025-10-26T11:14:47.458707Z"
+  },
+  "validation": {
+    "ok": true,
+    "violations": []
+  },
+  "staged_at": "2025-10-26T11:14:47.459073Z"
+}

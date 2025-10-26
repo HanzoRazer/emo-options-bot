@@ -79,7 +79,7 @@ class RiskConstraints(EnhancedBaseModel):
             logger.warning(f"Risk percentage {v} seems excessive, consider review")
         return v
     
-    @root_validator
+    @root_validator(skip_on_failure=True)
     def validate_risk_consistency(cls, values):
         max_pct = values.get('max_risk_pct')
         max_dollars = values.get('max_risk_dollars')
@@ -128,7 +128,7 @@ class TradeLeg(EnhancedBaseModel):
             return v.isoformat()
         return v
     
-    @root_validator
+    @root_validator(skip_on_failure=True)
     def validate_options_fields(cls, values):
         instrument = values.get('instrument')
         strike = values.get('strike')
@@ -169,7 +169,7 @@ class TradePlan(EnhancedBaseModel):
             
         return v
     
-    @root_validator
+    @root_validator(skip_on_failure=True)
     def validate_strategy_consistency(cls, values):
         strategy_type = values.get('strategy_type')
         legs = values.get('legs', [])

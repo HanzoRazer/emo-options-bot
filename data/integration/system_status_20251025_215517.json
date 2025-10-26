@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-10-25T21:55:15.907087",
+  "database_healthy": true,
+  "environment": "dev",
+  "total_orders": 0,
+  "active_orders": 0,
+  "system_health_score": 75.0,
+  "database_dialect": "sqlite",
+  "migration_status": "pending",
+  "recent_files_count": 13,
+  "components": {
+    "database": {
+      "healthy": true,
+      "dialect": "sqlite",
+      "status": "operational"
+    },
+    "migrations": {
+      "status": "pending",
+      "last_check": "2025-10-25T21:55:15.907087"
+    },
+    "file_system": {
+      "recent_files_24h": 13,
+      "data_directory": "C:\\Users\\thepr\\Downloads\\emo_options_bot_sqlite_plot_upgrade\\data",
+      "status": "operational"
+    },
+    "orders": {
+      "total": 0,
+      "active": 0,
+      "status": "operational"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+ts: '2025-10-26T03:30:54.455412+00:00'
+symbol: AAPL
+side: buy
+qty: 100
+type: market
+time_in_force: DAY
+strategy: long_call
+user: test_user
+meta:
+  source: stage_order_cli
+  version: v4_institutional
+  cli_args:
+    symbol: AAPL
+    side: buy
+    qty: 100
+    type: market
+    limit: null
+    stop: null
+    time_in_force: DAY
+    strategy: long_call
+    note: null
+    user: test_user
+    outdir: ops\staged_orders
+    format: yaml
+    list_pending: false
+    status: false
+    init_db: false
+    db_only: false
+    file_only: false

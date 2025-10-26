@@ -1,0 +1,1312 @@
+#!/usr/bin/env python3
+"""
+EMO Options Bot Build Script
+===========================
+Comprehensive build automation for the EMO Options Bot with OPS database integration.
+
+Features:
+- Multiple build targets (local, docker, standalone)
+- Quality checks and validation
+- Dependency management
+- Package creation and deployment
+- Environment-specific configurations
+- Integration with institutional systems
+"""
+
+import os
+import sys
+import shutil
+import subprocess
+import argparse
+import json
+import logging
+from pathlib import Path
+from typing import Dict, List, Any, Optional
+
+# Setup paths
+project_root = Path(__file__).resolve().parent
+sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / "src"))
+
+# Import build configuration
+try:
+    from build_config import (
+        get_config, get_build_config, PROJECT_NAME, VERSION,
+        PACKAGE_STRUCTURE, QUALITY_CHECKS, DOCKER_CONFIG
+    )
+except ImportError:
+    # Fallback configuration if build_config not available
+    PROJECT_NAME = "emo-options-bot"
+    VERSION = "2.0.0"
+    PACKAGE_STRUCTURE = {
+        "src/": ["**/*.py"],
+        "ops/": ["**/*.py"],
+        "tools/": ["*.py"],
+        "": ["requirements.txt", "README*.txt", "setup.py"]
+    }
+    def get_config(env): return {"project": {"name": PROJECT_NAME, "version": VERSION}}
+    def get_build_config(target): return {"target": {"description": f"{target} build"}}
+
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+class EMOBuilder:
+    """Comprehensive build system for EMO Options Bot."""
+    
+    def __init__(self, target: str = "local", environment: str = "development"):
+        """Initialize builder."""
+        self.target = target
+        self.environment = environment
+        self.project_root = project_root
+        self.build_dir = self.project_root / "build"
+        self.dist_dir = self.project_root / "dist"
+        
+        self.config = get_config(environment)
+        self.build_config = get_build_config(target)
+        
+        logger.info(f"EMO Builder initialized: {target} target, {environment} environment")
+    
+    def clean_build_dirs(self) -> bool:
+        """Clean build and dist directories."""
+        logger.info("🧹 Cleaning build directories...")
+        
+        try:
+            for directory in [self.build_dir, self.dist_dir]:
+                if directory.exists():
+                    shutil.rmtree(directory)
+                    logger.info(f"✅ Cleaned: {directory}")
+                
+                directory.mkdir(parents=True, exist_ok=True)
+                logger.info(f"✅ Created: {directory}")
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to clean directories: {e}")
+            return False
+    
+    def validate_environment(self) -> bool:
+        """Validate Python environment and basic requirements."""
+        logger.info("🔍 Validating environment...")
+        
+        # Check Python version
+        python_version = sys.version_info
+        if python_version < (3, 8):
+            logger.error(f"❌ Python 3.8+ required, found {python_version.major}.{python_version.minor}")
+            return False
+        
+        logger.info(f"✅ Python {python_version.major}.{python_version.minor}.{python_version.micro}")
+        
+        # Check pip availability
+        try:
+            import pip
+            logger.info(f"✅ pip available: {pip.__version__}")
+        except ImportError:
+            logger.error("❌ pip not available")
+            return False
+        
+        return True
+    
+    def validate_dependencies(self) -> bool:
+        """Validate all dependencies are available."""
+        logger.info("📦 Validating dependencies...")
+        
+        try:
+            # Check requirements.txt exists
+            requirements_file = self.project_root / "requirements.txt"
+            if not requirements_file.exists():
+                logger.error("❌ requirements.txt not found")
+                return False
+            
+            # Parse requirements
+            with open(requirements_file, 'r') as f:
+                requirements = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+            
+            logger.info(f"✅ Found {len(requirements)} requirements")
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Dependency validation failed: {e}")
+            return False
+    
+    def run_quality_checks(self) -> bool:
+        """Run code quality checks."""
+        logger.info("🔍 Running quality checks...")
+        
+        quality_passed = True
+        
+        # Code formatting check
+        logger.info("📝 Checking code formatting...")
+        python_files = list(self.project_root.rglob("*.py"))
+        logger.info(f"✅ Found {len(python_files)} Python files")
+        
+        # Import validation
+        logger.info("🔗 Validating imports...")
+        
+        critical_modules = [
+            "ops.db.session",
+            "ops.staging.models",
+        ]
+        
+        for module_name in critical_modules:
+            try:
+                __import__(module_name)
+                logger.info(f"✅ {module_name} imports successfully")
+            except ImportError as e:
+                logger.error(f"❌ {module_name} import failed: {e}")
+                quality_passed = False
+        
+        # Syntax validation
+        logger.info("⚡ Validating Python syntax...")
+        syntax_errors = 0
+        
+        for py_file in python_files:
+            try:
+                with open(py_file, 'r', encoding='utf-8') as f:
+                    compile(f.read(), py_file, 'exec')
+            except SyntaxError as e:
+                logger.error(f"❌ Syntax error in {py_file}: {e}")
+                syntax_errors += 1
+                quality_passed = False
+            except Exception as e:
+                logger.warning(f"⚠️ Could not check {py_file}: {e}")
+        
+        if syntax_errors == 0:
+            logger.info("✅ No syntax errors found")
+        else:
+            logger.error(f"❌ Found {syntax_errors} syntax errors")
+        
+        return quality_passed
+    
+    def validate_package_structure(self) -> bool:
+        """Validate package structure and imports."""
+        logger.info("🏗️ Validating package structure...")
+        
+        # Required files and directories
+        required_paths = [
+            self.project_root / "src",
+            self.project_root / "ops",
+            self.project_root / "tools",
+            self.project_root / "ops" / "db" / "__init__.py",
+            self.project_root / "ops" / "db" / "session.py",
+            self.project_root / "ops" / "staging" / "__init__.py",
+            self.project_root / "ops" / "staging" / "models.py",
+            self.project_root / "tools" / "stage_order_cli.py",
+            self.project_root / "tools" / "emit_health.py",
+            self.project_root / "tools" / "db_manage.py"
+        ]
+        
+        missing_paths = []
+        for path in required_paths:
+            if not path.exists():
+                missing_paths.append(path)
+                logger.error(f"❌ Missing: {path}")
+            else:
+                logger.info(f"✅ Found: {path}")
+        
+        if missing_paths:
+            logger.error(f"❌ Package structure validation failed: {len(missing_paths)} missing files")
+            return False
+        
+        logger.info("✅ Package structure validation passed")
+        return True
+    
+    def test_database_integration(self) -> bool:
+        """Test database integration."""
+        logger.info("🗄️ Testing database integration...")
+        
+        try:
+            # Test OPS database
+            from ops.db.session import init_db, test_connection
+            
+            init_db()
+            
+            if test_connection():
+                logger.info("✅ OPS database initialized and tested")
+            else:
+                logger.error("❌ OPS database connection test failed")
+                return False
+            
+            # Test institutional integration if available
+            try:
+                from src.database.institutional_integration import InstitutionalIntegration
+                
+                integration = InstitutionalIntegration()
+                status = integration.check_system_health()
+                
+                if status.database_healthy:
+                    logger.info("✅ Institutional database healthy")
+                else:
+                    logger.warning("⚠️ Institutional database not healthy")
+                    
+            except ImportError:
+                logger.info("ℹ️ Institutional integration not available (optional)")
+            except Exception as e:
+                logger.warning(f"⚠️ Institutional database check failed: {e}")
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Database integration test failed: {e}")
+            return False
+    
+    def test_tools_functionality(self) -> bool:
+        """Test key tools functionality."""
+        logger.info("🔧 Testing tools functionality...")
+        
+        try:
+            # Test CLI tool
+            cli_result = subprocess.run(
+                [sys.executable, str(self.project_root / "tools" / "stage_order_cli.py"), "--help"],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            
+            if cli_result.returncode == 0:
+                logger.info("✅ CLI tool functional")
+            else:
+                logger.error("❌ CLI tool failed")
+                return False
+            
+            # Test database manager
+            db_result = subprocess.run(
+                [sys.executable, str(self.project_root / "tools" / "db_manage.py"), "health"],
+                capture_output=True,
+                text=True,
+                timeout=15
+            )
+            
+            if db_result.returncode == 0:
+                logger.info("✅ Database manager functional")
+            else:
+                logger.warning("⚠️ Database manager issues (may be expected in some environments)")
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Tools functionality test failed: {e}")
+            return False
+    
+    def create_distribution_package(self) -> bool:
+        """Create distribution package."""
+        logger.info("📦 Creating distribution package...")
+        
+        try:
+            # Create package name
+            package_name = f"{PROJECT_NAME}-{VERSION}-{self.target}-{self.environment}"
+            package_dir = self.dist_dir / package_name
+            package_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Copy essential files
+            essential_files = [
+                "requirements.txt",
+                "setup.py",
+                "build_config.py",
+                "README_SQLITE.txt"
+            ]
+            
+            for filename in essential_files:
+                src_file = self.project_root / filename
+                if src_file.exists():
+                    shutil.copy2(src_file, package_dir / filename)
+                    logger.info(f"✅ Copied: {filename}")
+            
+            # Copy directories
+            for src_dir in ["src", "ops", "tools"]:
+                src_path = self.project_root / src_dir
+                if src_path.exists():
+                    dest_path = package_dir / src_dir
+                    shutil.copytree(src_path, dest_path, dirs_exist_ok=True)
+                    logger.info(f"✅ Copied directory: {src_dir}")
+            
+            # Create installation script
+            install_script = package_dir / "install.py"
+            install_content = f'''#!/usr/bin/env python3
+"""Installation script for EMO Options Bot {VERSION}"""
+
+import sys
+import subprocess
+from pathlib import Path
+
+def main():
+    print("🚀 Installing EMO Options Bot {VERSION}")
+    
+    # Check Python version
+    if sys.version_info < (3, 8):
+        print("❌ Python 3.8+ required")
+        return False
+    
+    # Install dependencies
+    print("📦 Installing dependencies...")
+    try:
+        subprocess.run([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"], check=True)
+        print("✅ Dependencies installed")
+    except subprocess.CalledProcessError:
+        print("❌ Failed to install dependencies")
+        return False
+    
+    # Run setup
+    print("⚙️ Running setup...")
+    try:
+        subprocess.run([sys.executable, "setup.py", "--full"], check=True)
+        print("✅ Setup completed")
+    except subprocess.CalledProcessError:
+        print("❌ Setup failed")
+        return False
+    
+    print("🎉 Installation completed!")
+    print("Start with: python setup.py --validate")
+    return True
+
+if __name__ == "__main__":
+    main()
+'''
+            
+            with open(install_script, 'w') as f:
+                f.write(install_content)
+            
+            logger.info(f"✅ Created distribution package: {package_dir}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to create distribution package: {e}")
+            return False
+    
+    def run_build(self) -> bool:
+        """Run complete build process."""
+        logger.info(f"🚀 Starting build: {self.target} target, {self.environment} environment")
+        
+        build_steps = [
+            ("Clean Build Directories", self.clean_build_dirs),
+            ("Validate Environment", self.validate_environment),
+            ("Validate Dependencies", self.validate_dependencies),
+            ("Run Quality Checks", self.run_quality_checks),
+            ("Validate Package Structure", self.validate_package_structure),
+            ("Test Database Integration", self.test_database_integration),
+            ("Test Tools Functionality", self.test_tools_functionality),
+            ("Create Distribution Package", self.create_distribution_package),
+        ]
+        
+        for step_name, step_func in build_steps:
+            logger.info(f"📋 {step_name}...")
+            try:
+                if not step_func():
+                    logger.error(f"❌ Build failed at: {step_name}")
+                    return False
+                logger.info(f"✅ {step_name} completed")
+            except Exception as e:
+                logger.error(f"💥 Build error in {step_name}: {e}")
+                return False
+        
+        logger.info(f"🎉 Build completed successfully!")
+        logger.info(f"📦 Distribution: {self.dist_dir}")
+        
+        return True
+
+def main():
+    """Main build entry point."""
+    parser = argparse.ArgumentParser(description="EMO Options Bot Build System")
+    parser.add_argument(
+        "--target", 
+        choices=["local", "docker", "standalone"], 
+        default="local",
+        help="Build target"
+    )
+    parser.add_argument(
+        "--environment",
+        choices=["development", "staging", "production"],
+        default="development", 
+        help="Target environment"
+    )
+    parser.add_argument("--clean", action="store_true", help="Clean only")
+    parser.add_argument("--validate", action="store_true", help="Validate only")
+    parser.add_argument("--test", action="store_true", help="Test only")
+    parser.add_argument("--verbose", action="store_true", help="Verbose output")
+    
+    args = parser.parse_args()
+    
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+    
+    builder = EMOBuilder(args.target, args.environment)
+    
+    try:
+        if args.clean:
+            success = builder.clean_build_dirs()
+            sys.exit(0 if success else 1)
+        
+        if args.validate:
+            success = (builder.validate_environment() and 
+                      builder.validate_dependencies() and 
+                      builder.validate_package_structure())
+            sys.exit(0 if success else 1)
+        
+        if args.test:
+            success = (builder.test_database_integration() and 
+                      builder.test_tools_functionality())
+            sys.exit(0 if success else 1)
+        
+        # Run full build
+        success = builder.run_build()
+        sys.exit(0 if success else 1)
+        
+    except KeyboardInterrupt:
+        logger.info("\n🛑 Build cancelled by user")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"💥 Build failed: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+            "component_health": {},
+            "warnings": [],
+            "errors": []
+        }
+        
+        if verbose:
+            logging.getLogger().setLevel(logging.DEBUG)
+    
+    def log_phase(self, phase: str, action: str = "start"):
+        """Log build phase with timing."""
+        timestamp = datetime.now()
+        
+        if action == "start":
+            logger.info(f"🔄 Starting phase: {phase}")
+            self.metrics["phase_times"][f"{phase}_start"] = timestamp
+        elif action == "complete":
+            start_time = self.metrics["phase_times"].get(f"{phase}_start")
+            if start_time:
+                duration = (timestamp - start_time).total_seconds()
+                self.metrics["phase_times"][f"{phase}_duration"] = duration
+                logger.info(f"✅ Completed phase: {phase} ({duration:.2f}s)")
+            else:
+                logger.info(f"✅ Completed phase: {phase}")
+        elif action == "fail":
+            logger.error(f"❌ Failed phase: {phase}")
+            self.metrics["errors"].append(f"Phase {phase} failed")
+    
+    def validate_environment(self) -> bool:
+        """Phase 1: Validate build environment and prerequisites."""
+        self.log_phase("validate_environment", "start")
+        
+        try:
+            # Check Python version
+            if sys.version_info < (3, 8):
+                raise BuildError(f"Python 3.8+ required, got {sys.version_info}")
+            
+            logger.info(f"✅ Python version: {sys.version}")
+            
+            # Check required directories
+            required_dirs = ["src", "tools", "data", "ops"]
+            for dir_name in required_dirs:
+                dir_path = self.root / dir_name
+                if not dir_path.exists():
+                    raise BuildError(f"Required directory missing: {dir_name}")
+                logger.debug(f"✅ Directory exists: {dir_name}")
+            
+            # Validate environment configuration
+            try:
+                from tools.validate_env import EnvironmentValidator
+                validator = EnvironmentValidator(self.environment)
+                
+                if not validator.validate_environment_variables():
+                    self.metrics["warnings"].append("Environment variables validation failed")
+                    logger.warning("⚠️ Environment variables validation failed")
+                
+                logger.info(f"✅ Environment validation completed for: {self.environment}")
+                
+            except ImportError:
+                logger.warning("⚠️ Environment validator not available")
+            
+            self.log_phase("validate_environment", "complete")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Environment validation failed: {e}")
+            self.log_phase("validate_environment", "fail")
+            return False
+    
+    def check_dependencies(self) -> bool:
+        """Phase 2: Check component dependencies and availability."""
+        self.log_phase("check_dependencies", "start")
+        
+        try:
+            # Check core Python dependencies
+            core_deps = {
+                "sqlite3": "Database support",
+                "json": "Configuration management", 
+                "pathlib": "Path operations",
+                "logging": "Logging framework",
+                "datetime": "Time operations"
+            }
+            
+            for dep, description in core_deps.items():
+                try:
+                    __import__(dep)
+                    logger.debug(f"✅ {dep}: {description}")
+                except ImportError:
+                    raise BuildError(f"Missing core dependency: {dep} ({description})")
+            
+            # Check optional dependencies
+            optional_deps = {
+                "requests": "HTTP client for live data",
+                "psycopg2": "PostgreSQL support",
+                "smtplib": "Email notifications"
+            }
+            
+            for dep, description in optional_deps.items():
+                try:
+                    __import__(dep)
+                    logger.debug(f"✅ {dep}: {description}")
+                except ImportError:
+                    logger.warning(f"⚠️ Optional dependency missing: {dep} ({description})")
+                    self.metrics["warnings"].append(f"Missing optional dependency: {dep}")
+            
+            # Check component files
+            missing_components = []
+            for component, file_path in self.components.items():
+                full_path = self.root / file_path
+                if full_path.exists():
+                    logger.debug(f"✅ Component available: {component}")
+                else:
+                    missing_components.append(component)
+                    logger.warning(f"⚠️ Component missing: {component} ({file_path})")
+            
+            if missing_components:
+                self.metrics["warnings"].append(f"Missing components: {', '.join(missing_components)}")
+            
+            self.log_phase("check_dependencies", "complete")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Dependency check failed: {e}")
+            self.log_phase("check_dependencies", "fail")
+            return False
+    
+    def setup_workspace(self) -> bool:
+        """Phase 3: Setup workspace directory structure and configuration."""
+        self.log_phase("setup_workspace", "start")
+        
+        try:
+            # Initialize workspace
+            try:
+                from workspace_config import WorkspaceManager
+                manager = WorkspaceManager()
+                
+                if not manager.create_directory_structure():
+                    raise BuildError("Failed to create workspace structure")
+                
+                # Create environment-specific configuration
+                if not manager.create_environment_file(self.environment, overwrite=False):
+                    logger.warning(f"⚠️ Failed to create environment file for {self.environment}")
+                    self.metrics["warnings"].append(f"Environment file creation failed: {self.environment}")
+                
+                logger.info(f"✅ Workspace setup completed for environment: {self.environment}")
+                
+            except ImportError:
+                logger.warning("⚠️ Workspace manager not available - creating basic structure")
+                
+                # Fallback: create basic directory structure
+                basic_dirs = [
+                    "data", "ops", "ops/orders", "ops/orders/drafts", 
+                    "ops/orders/archive", "logs", "backups"
+                ]
+                
+                for dir_path in basic_dirs:
+                    full_path = self.root / dir_path
+                    full_path.mkdir(parents=True, exist_ok=True)
+                    logger.debug(f"✅ Created directory: {dir_path}")
+            
+            self.log_phase("setup_workspace", "complete")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Workspace setup failed: {e}")
+            self.log_phase("setup_workspace", "fail")
+            return False
+    
+    def validate_components(self) -> bool:
+        """Phase 4: Validate component functionality and health."""
+        self.log_phase("validate_components", "start")
+        
+        try:
+            component_results = {}
+            
+            # Test enhanced configuration
+            try:
+                from src.utils.enhanced_config import Config
+                config = Config()
+                component_results["enhanced_config"] = True
+                logger.info("✅ Enhanced configuration system functional")
+            except Exception as e:
+                logger.warning(f"⚠️ Enhanced configuration failed: {e}")
+                component_results["enhanced_config"] = False
+                self.metrics["warnings"].append("Enhanced configuration not functional")
+            
+            # Test database router
+            try:
+                from db.router import DatabaseRouter, test_connection
+                router = DatabaseRouter()
+                health = test_connection()
+                component_results["database_router"] = health
+                
+                if health:
+                    logger.info("✅ Database router functional")
+                else:
+                    logger.warning("⚠️ Database router health check failed")
+                    self.metrics["warnings"].append("Database router not healthy")
+                    
+            except Exception as e:
+                logger.warning(f"⚠️ Database router failed: {e}")
+                component_results["database_router"] = False
+                self.metrics["warnings"].append("Database router not functional")
+            
+            # Test institutional database infrastructure
+            try:
+                logger.info("🏛️ Testing institutional database infrastructure...")
+                
+                # Test enhanced database router
+                from src.database.router_v2 import get_enhanced_router
+                enhanced_router = get_enhanced_router()
+                enhanced_health = enhanced_router.test_connection()
+                component_results["enhanced_database_router"] = enhanced_health
+                
+                if enhanced_health:
+                    logger.info("✅ Enhanced database router functional")
+                else:
+                    logger.warning("⚠️ Enhanced database router health check failed")
+                    self.metrics["warnings"].append("Enhanced database router not healthy")
+                
+                # Test legacy compatibility
+                from src.database.enhanced_router import DBRouter
+                DBRouter.init()
+                legacy_health = DBRouter.test_connection()
+                component_results["legacy_database_compatibility"] = legacy_health
+                
+                if legacy_health:
+                    logger.info("✅ Legacy database compatibility functional")
+                else:
+                    logger.warning("⚠️ Legacy database compatibility failed")
+                    self.metrics["warnings"].append("Legacy database compatibility failed")
+                
+                # Test order review system
+                from src.database.order_review import EnhancedOrderReview
+                order_review = EnhancedOrderReview()
+                
+                # Test with sample data
+                sample_orders = [{
+                    'symbol': 'TEST',
+                    'type': 'limit',
+                    'quantity': 100,
+                    'value': 1000,
+                    'status': 'executed',
+                    'created_at': '2024-10-25T10:00:00Z'
+                }]
+                
+                metrics = order_review.analyze_orders(sample_orders)
+                order_review_health = metrics.total_orders > 0
+                component_results["order_review_system"] = order_review_health
+                
+                if order_review_health:
+                    logger.info("✅ Order review system functional")
+                else:
+                    logger.warning("⚠️ Order review system failed")
+                    self.metrics["warnings"].append("Order review system not functional")
+                
+                # Test institutional integration
+                from src.database.institutional_integration import InstitutionalIntegration
+                integration = InstitutionalIntegration()
+                integration_status = integration.check_system_health()
+                integration_health = integration_status.system_health_score > 50
+                component_results["institutional_integration"] = integration_health
+                
+                if integration_health:
+                    logger.info(f"✅ Institutional integration functional (health: {integration_status.system_health_score:.1f}%)")
+                else:
+                    logger.warning(f"⚠️ Institutional integration degraded (health: {integration_status.system_health_score:.1f}%)")
+                    self.metrics["warnings"].append("Institutional integration system degraded")
+                
+            except Exception as e:
+                logger.warning(f"⚠️ Institutional database infrastructure failed: {e}")
+                component_results["enhanced_database_router"] = False
+                component_results["legacy_database_compatibility"] = False
+                component_results["order_review_system"] = False
+                component_results["institutional_integration"] = False
+                self.metrics["warnings"].append("Institutional database infrastructure not functional")
+            
+            # Test live logger
+            try:
+                from data.live_logger import LiveLogger
+                
+                # Create test instance with mock environment
+                test_env = {
+                    "EMO_ENV": self.environment,
+                    "EMO_LIVE_LOGGER_ENABLED": "1",
+                    "EMO_SYMBOLS": "SPY",
+                    "EMO_SQLITE_PATH": ":memory:"
+                }
+                
+                with patch_environment(test_env):
+                    logger_instance = LiveLogger()
+                    health = logger_instance.health_check()
+                    component_results["live_logger"] = health.get("status") == "healthy"
+                    
+                    if component_results["live_logger"]:
+                        logger.info("✅ Live logger functional")
+                    else:
+                        logger.warning("⚠️ Live logger health check failed")
+                        self.metrics["warnings"].append("Live logger not healthy")
+                        
+            except Exception as e:
+                logger.warning(f"⚠️ Live logger failed: {e}")
+                component_results["live_logger"] = False
+                self.metrics["warnings"].append("Live logger not functional")
+            
+            # Store component health
+            self.metrics["component_health"] = component_results
+            
+            # Consider build successful if critical components work
+            # Primary institutional infrastructure
+            institutional_components = [
+                "enhanced_database_router",
+                "legacy_database_compatibility", 
+                "order_review_system",
+                "institutional_integration"
+            ]
+            institutional_working = all(component_results.get(comp, False) for comp in institutional_components)
+            
+            # Legacy components (optional for institutional build)
+            legacy_components = ["enhanced_config", "database_router"]
+            legacy_working = all(component_results.get(comp, False) for comp in legacy_components)
+            
+            # Enhanced config should always work
+            config_working = component_results.get("enhanced_config", False)
+            
+            if institutional_working and config_working:
+                logger.info("✅ Institutional infrastructure and critical components functional")
+                if not legacy_working:
+                    logger.warning("⚠️ Some legacy components not functional, but institutional infrastructure is operational")
+                self.log_phase("validate_components", "complete")
+                return True
+            else:
+                logger.error("❌ Institutional infrastructure or critical components not functional")
+                logger.error(f"   Institutional working: {institutional_working}")
+                logger.error(f"   Config working: {config_working}")
+                self.log_phase("validate_components", "fail")
+                return False
+            
+        except Exception as e:
+            logger.error(f"❌ Component validation failed: {e}")
+            self.log_phase("validate_components", "fail")
+            return False
+    
+    def setup_database(self) -> bool:
+        """Phase 5: Setup and migrate database schema."""
+        self.log_phase("setup_database", "start")
+        
+        try:
+            # Run database migration
+            try:
+                from db.router import migrate
+                
+                if migrate():
+                    logger.info("✅ Database migration completed")
+                else:
+                    logger.warning("⚠️ Database migration failed")
+                    self.metrics["warnings"].append("Database migration failed")
+                    
+            except ImportError:
+                logger.warning("⚠️ Database migration not available")
+            except Exception as e:
+                logger.warning(f"⚠️ Database migration error: {e}")
+                self.metrics["warnings"].append(f"Database migration error: {e}")
+            
+            # Test database connectivity
+            try:
+                from db.router import test_connection
+                
+                if test_connection():
+                    logger.info("✅ Database connection verified")
+                else:
+                    logger.warning("⚠️ Database connection failed")
+                    self.metrics["warnings"].append("Database connection failed")
+                    
+            except Exception as e:
+                logger.warning(f"⚠️ Database connection test error: {e}")
+                self.metrics["warnings"].append(f"Database connection error: {e}")
+            
+            self.log_phase("setup_database", "complete")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Database setup failed: {e}")
+            self.log_phase("setup_database", "fail")
+            return False
+    
+    def run_tests(self) -> bool:
+        """Phase 6: Run comprehensive test suite."""
+        self.log_phase("run_tests", "start")
+        
+        try:
+            # Run test suite
+            try:
+                from test_suite import create_test_suite
+                import unittest
+                
+                # Create and run unit tests
+                suite = create_test_suite("unit")
+                runner = unittest.TextTestRunner(verbosity=1 if self.verbose else 0, stream=open(os.devnull, 'w') if not self.verbose else sys.stdout)
+                result = runner.run(suite)
+                
+                # Store test results
+                self.metrics["test_results"] = {
+                    "tests_run": result.testsRun,
+                    "failures": len(result.failures),
+                    "errors": len(result.errors),
+                    "skipped": len(result.skipped),
+                    "success": result.wasSuccessful()
+                }
+                
+                if result.wasSuccessful():
+                    logger.info(f"✅ All tests passed ({result.testsRun} tests)")
+                else:
+                    logger.warning(f"⚠️ Some tests failed ({len(result.failures)} failures, {len(result.errors)} errors)")
+                    self.metrics["warnings"].append(f"Test failures: {len(result.failures)} failures, {len(result.errors)} errors")
+                
+            except ImportError:
+                logger.warning("⚠️ Test suite not available")
+                self.metrics["warnings"].append("Test suite not available")
+            except Exception as e:
+                logger.warning(f"⚠️ Test execution failed: {e}")
+                self.metrics["warnings"].append(f"Test execution failed: {e}")
+            
+            self.log_phase("run_tests", "complete")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Test execution failed: {e}")
+            self.log_phase("run_tests", "fail")
+            return False
+    
+    def setup_live_logger(self) -> bool:
+        """Phase 7: Setup and validate live logger integration."""
+        self.log_phase("setup_live_logger", "start")
+        
+        try:
+            # Test live logger functionality
+            try:
+                from data.live_logger import LiveLogger
+                
+                # Create test configuration
+                test_env = {
+                    "EMO_ENV": self.environment,
+                    "EMO_LIVE_LOGGER_ENABLED": "1",
+                    "EMO_SYMBOLS": "SPY",
+                    "EMO_SQLITE_PATH": str(self.root / "ops" / f"emo_{self.environment}.sqlite")
+                }
+                
+                with patch_environment(test_env):
+                    logger_instance = LiveLogger()
+                    
+                    # Test health check
+                    health = logger_instance.health_check()
+                    
+                    if health.get("status") == "healthy":
+                        logger.info("✅ Live logger integration successful")
+                    else:
+                        logger.warning("⚠️ Live logger integration issues detected")
+                        self.metrics["warnings"].append("Live logger integration issues")
+                    
+                    # Test performance metrics
+                    try:
+                        report = logger_instance.get_performance_report()
+                        logger.info("✅ Performance monitoring functional")
+                    except Exception as e:
+                        logger.warning(f"⚠️ Performance monitoring failed: {e}")
+                        self.metrics["warnings"].append("Performance monitoring failed")
+                
+            except ImportError:
+                logger.warning("⚠️ Live logger not available")
+                self.metrics["warnings"].append("Live logger not available")
+            except Exception as e:
+                logger.warning(f"⚠️ Live logger setup failed: {e}")
+                self.metrics["warnings"].append(f"Live logger setup failed: {e}")
+            
+            self.log_phase("setup_live_logger", "complete")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Live logger setup failed: {e}")
+            self.log_phase("setup_live_logger", "fail")
+            return False
+    
+    def validate_health_monitoring(self) -> bool:
+        """Phase 8: Validate health monitoring system."""
+        self.log_phase("validate_health_monitoring", "start")
+        
+        try:
+            # Test health monitoring integration
+            try:
+                from tools.emit_health import main as health_main
+                
+                # Test health endpoint functionality
+                logger.info("✅ Health monitoring system available")
+                
+            except ImportError:
+                logger.warning("⚠️ Health monitoring system not available")
+                self.metrics["warnings"].append("Health monitoring system not available")
+            
+            # Test component health integration
+            try:
+                from workspace_config import WorkspaceManager
+                manager = WorkspaceManager()
+                
+                health = manager.get_component_health()
+                
+                if health.get("workspace", {}).get("status") == "healthy":
+                    logger.info("✅ Component health monitoring functional")
+                else:
+                    logger.warning("⚠️ Component health monitoring issues detected")
+                    self.metrics["warnings"].append("Component health monitoring issues")
+                    
+            except Exception as e:
+                logger.warning(f"⚠️ Health monitoring validation failed: {e}")
+                self.metrics["warnings"].append(f"Health monitoring validation failed: {e}")
+            
+            self.log_phase("validate_health_monitoring", "complete")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Health monitoring validation failed: {e}")
+            self.log_phase("validate_health_monitoring", "fail")
+            return False
+    
+    def prepare_deployment(self) -> bool:
+        """Phase 9: Prepare for deployment based on environment."""
+        self.log_phase("prepare_deployment", "start")
+        
+        try:
+            if self.environment == "prod":
+                # Production-specific preparation
+                logger.info("🚀 Preparing production deployment...")
+                
+                # Validate production requirements
+                try:
+                    from tools.validate_env import EnvironmentValidator
+                    validator = EnvironmentValidator("prod")
+                    
+                    if not validator.run_all_validations(check_database=True, check_broker=True):
+                        logger.warning("⚠️ Production validation failed")
+                        self.metrics["warnings"].append("Production validation failed")
+                        
+                        # Still continue but log warnings
+                        validator.print_results()
+                    else:
+                        logger.info("✅ Production validation passed")
+                        
+                except Exception as e:
+                    logger.warning(f"⚠️ Production validation error: {e}")
+                    self.metrics["warnings"].append(f"Production validation error: {e}")
+                
+                # Ensure production configuration
+                prod_checks = {
+                    "EMO_ENV": "prod",
+                    "EMO_STAGE_ORDERS": "0",  # No staging in production
+                    "EMO_EMAIL_NOTIFICATIONS": "1"  # Enable notifications
+                }
+                
+                for key, expected in prod_checks.items():
+                    actual = os.getenv(key, "")
+                    if actual != expected:
+                        logger.warning(f"⚠️ Production config issue: {key}={actual}, expected {expected}")
+                        self.metrics["warnings"].append(f"Production config: {key} not set correctly")
+            
+            elif self.environment == "staging":
+                logger.info("🧪 Preparing staging deployment...")
+                
+                # Staging-specific preparation
+                staging_checks = {
+                    "EMO_ENV": "staging",
+                    "EMO_STAGE_ORDERS": "1",  # Enable staging
+                    "ALPACA_API_BASE": "https://paper-api.alpaca.markets"  # Paper trading
+                }
+                
+                for key, expected in staging_checks.items():
+                    actual = os.getenv(key, "")
+                    if actual and actual != expected:
+                        logger.warning(f"⚠️ Staging config issue: {key}={actual}, expected {expected}")
+                        self.metrics["warnings"].append(f"Staging config: {key} not set correctly")
+            
+            else:
+                logger.info("🛠️ Preparing development deployment...")
+                
+                # Development environment is more permissive
+                dev_recommendations = {
+                    "EMO_STAGE_ORDERS": "1",
+                    "EMO_EMAIL_NOTIFICATIONS": "0",
+                    "EMO_AUTO_BACKUP": "1"
+                }
+                
+                for key, recommended in dev_recommendations.items():
+                    actual = os.getenv(key, "")
+                    if not actual:
+                        logger.info(f"💡 Recommendation: Set {key}={recommended} for development")
+            
+            self.log_phase("prepare_deployment", "complete")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Deployment preparation failed: {e}")
+            self.log_phase("prepare_deployment", "fail")
+            return False
+    
+    def final_validation(self) -> bool:
+        """Phase 10: Final validation and readiness check."""
+        self.log_phase("final_validation", "start")
+        
+        try:
+            # Validate workspace integrity
+            try:
+                from workspace_config import WorkspaceManager
+                manager = WorkspaceManager()
+                
+                components = manager.validate_components()
+                health = manager.get_component_health()
+                
+                critical_components = ["enhanced_config", "database_router", "live_logger"]
+                available_critical = sum(1 for comp in critical_components if components.get(comp, False))
+                
+                logger.info(f"✅ Component availability: {available_critical}/{len(critical_components)} critical components")
+                
+                if health.get("workspace", {}).get("status") == "healthy":
+                    logger.info("✅ Workspace health: healthy")
+                else:
+                    logger.warning("⚠️ Workspace health: issues detected")
+                    self.metrics["warnings"].append("Workspace health issues")
+                    
+            except Exception as e:
+                logger.warning(f"⚠️ Final workspace validation failed: {e}")
+                self.metrics["warnings"].append(f"Final workspace validation failed: {e}")
+            
+            # Generate build report
+            self.generate_build_report()
+            
+            self.log_phase("final_validation", "complete")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Final validation failed: {e}")
+            self.log_phase("final_validation", "fail")
+            return False
+    
+    def generate_build_report(self):
+        """Generate comprehensive build report."""
+        build_end_time = datetime.now()
+        total_duration = (build_end_time - self.build_start_time).total_seconds()
+        
+        # Calculate phase durations
+        phase_summary = []
+        for phase in self.build_phases:
+            duration = self.metrics["phase_times"].get(f"{phase}_duration", 0)
+            phase_summary.append(f"  {phase}: {duration:.2f}s")
+        
+        # Create report
+        report = {
+            "build_info": {
+                "environment": self.environment,
+                "start_time": self.build_start_time.isoformat(),
+                "end_time": build_end_time.isoformat(),
+                "total_duration": total_duration,
+                "success": len(self.metrics["errors"]) == 0
+            },
+            "phase_timings": self.metrics["phase_times"],
+            "test_results": self.metrics.get("test_results", {}),
+            "component_health": self.metrics.get("component_health", {}),
+            "warnings": self.metrics["warnings"],
+            "errors": self.metrics["errors"]
+        }
+        
+        # Save report
+        report_file = self.root / f"build_report_{self.environment}_{build_end_time.strftime('%Y%m%d_%H%M%S')}.json"
+        with open(report_file, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        # Print summary
+        print(f"\n🏗️ Build Summary for {self.environment.upper()}")
+        print("=" * 60)
+        print(f"Duration: {total_duration:.2f}s")
+        print(f"Warnings: {len(self.metrics['warnings'])}")
+        print(f"Errors: {len(self.metrics['errors'])}")
+        
+        if self.metrics["test_results"]:
+            test_info = self.metrics["test_results"]
+            print(f"Tests: {test_info.get('tests_run', 0)} run, {test_info.get('failures', 0)} failed")
+        
+        print(f"\nPhase Timings:")
+        print("\n".join(phase_summary))
+        
+        if self.metrics["warnings"]:
+            print(f"\n⚠️ Warnings:")
+            for warning in self.metrics["warnings"]:
+                print(f"  - {warning}")
+        
+        if self.metrics["errors"]:
+            print(f"\n❌ Errors:")
+            for error in self.metrics["errors"]:
+                print(f"  - {error}")
+        
+        print(f"\nBuild report saved: {report_file}")
+        
+        # Final status
+        if len(self.metrics["errors"]) == 0:
+            print("✅ Build completed successfully!")
+        else:
+            print("❌ Build completed with errors!")
+    
+    def run_full_build(self, skip_tests: bool = False) -> bool:
+        """Execute complete build process."""
+        logger.info(f"🚀 Starting enhanced build for environment: {self.environment}")
+        
+        success = True
+        phases_to_run = self.build_phases.copy()
+        
+        if skip_tests:
+            phases_to_run.remove("run_tests")
+            logger.info("⏭️ Skipping test execution")
+        
+        for phase in phases_to_run:
+            phase_method = getattr(self, phase, None)
+            if phase_method:
+                try:
+                    if not phase_method():
+                        logger.error(f"❌ Build failed at phase: {phase}")
+                        success = False
+                        break
+                except Exception as e:
+                    logger.error(f"❌ Build failed at phase {phase}: {e}")
+                    self.metrics["errors"].append(f"Phase {phase}: {e}")
+                    success = False
+                    break
+            else:
+                logger.warning(f"⚠️ Phase method not found: {phase}")
+                self.metrics["warnings"].append(f"Phase method not found: {phase}")
+        
+        return success
+
+class ContextManager:
+    """Context manager for environment patching."""
+    
+    def __init__(self, env_vars: Dict[str, str]):
+        self.env_vars = env_vars
+        self.original_env = {}
+    
+    def __enter__(self):
+        for key, value in self.env_vars.items():
+            self.original_env[key] = os.environ.get(key)
+            os.environ[key] = value
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        for key in self.env_vars:
+            if self.original_env[key] is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = self.original_env[key]
+
+def patch_environment(env_vars: Dict[str, str]):
+    """Create context manager for environment patching."""
+    return ContextManager(env_vars)
+
+def main():
+    """CLI interface for enhanced build system."""
+    parser = argparse.ArgumentParser(
+        description="EMO Options Bot Enhanced Build & Deployment System",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Full build for development
+  python build.py
+  
+  # Quick build without tests
+  python build.py --quick
+  
+  # Deploy to production
+  python build.py --deploy prod
+  
+  # Run tests only
+  python build.py --test-only
+  
+  # Validate environment
+  python build.py --validate
+  
+  # Setup live logger integration
+  python build.py --live-logger
+        """
+    )
+    
+    parser.add_argument("--environment", "-e", choices=["dev", "staging", "prod"], 
+                       default="dev", help="Target environment")
+    parser.add_argument("--deploy", choices=["dev", "staging", "prod"], 
+                       help="Deploy to specified environment")
+    parser.add_argument("--quick", "-q", action="store_true", 
+                       help="Quick build (skip tests)")
+    parser.add_argument("--test-only", action="store_true", 
+                       help="Run tests only")
+    parser.add_argument("--validate", action="store_true", 
+                       help="Validate environment only")
+    parser.add_argument("--live-logger", action="store_true", 
+                       help="Setup live logger integration only")
+    parser.add_argument("--verbose", "-v", action="store_true", 
+                       help="Verbose output")
+    
+    args = parser.parse_args()
+    
+    # Determine environment
+    environment = args.deploy if args.deploy else args.environment
+    
+    try:
+        build_system = EnhancedBuildSystem(environment, args.verbose)
+        
+        if args.test_only:
+            logger.info("🧪 Running tests only...")
+            success = build_system.run_tests()
+            
+        elif args.validate:
+            logger.info("🔍 Validating environment only...")
+            success = (build_system.validate_environment() and 
+                      build_system.check_dependencies() and
+                      build_system.validate_components())
+            
+        elif args.live_logger:
+            logger.info("📊 Setting up live logger integration only...")
+            success = (build_system.validate_environment() and
+                      build_system.setup_workspace() and
+                      build_system.setup_live_logger())
+            
+        else:
+            # Full build
+            success = build_system.run_full_build(skip_tests=args.quick)
+        
+        if success:
+            logger.info("✅ Build process completed successfully!")
+            return 0
+        else:
+            logger.error("❌ Build process failed!")
+            return 1
+        
+    except KeyboardInterrupt:
+        logger.warning("⚠️ Build interrupted by user")
+        return 130
+    except Exception as e:
+        logger.error(f"❌ Build system error: {e}")
+        return 2
+
+if __name__ == "__main__":
+    exit(main())

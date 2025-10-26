@@ -1,0 +1,217 @@
+
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>EMO Options Bot - Institutional System Report</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+            <style>
+                body {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    min-height: 100vh;
+                    font-family: 'Segoe UI', system-ui, sans-serif;
+                }
+                .main-container {
+                    background: white;
+                    border-radius: 15px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                    margin: 20px;
+                    overflow: hidden;
+                }
+                .header-section {
+                    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                    color: white;
+                    padding: 30px;
+                    text-align: center;
+                }
+                .health-indicator {
+                    font-size: 3rem;
+                    margin: 20px 0;
+                }
+                .metric-cards {
+                    background: #f8f9fa;
+                    padding: 30px;
+                }
+                .metric-card {
+                    background: white;
+                    border-radius: 10px;
+                    padding: 20px;
+                    margin: 10px;
+                    text-align: center;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                    border-left: 4px solid #ffc107;
+                }
+                .metric-value {
+                    font-size: 2.5rem;
+                    font-weight: bold;
+                    color: #ffc107;
+                }
+                .metric-label {
+                    color: #6c757d;
+                    font-size: 0.9rem;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    margin-top: 5px;
+                }
+                .components-section {
+                    padding: 30px;
+                }
+                .section-title {
+                    border-bottom: 3px solid #667eea;
+                    padding-bottom: 10px;
+                    margin-bottom: 25px;
+                    font-weight: 600;
+                }
+                .status-table {
+                    border-radius: 10px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                }
+                .footer-section {
+                    background: #2c3e50;
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                }
+                .timestamp {
+                    opacity: 0.8;
+                    font-size: 0.9rem;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container-fluid">
+                <div class="main-container">
+                    <div class="header-section">
+                        <h1 class="mb-0">🏛️ Institutional System Report</h1>
+                        <div class="health-indicator">⚠️</div>
+                        <h3>System Health: 75.0%</h3>
+                        <div class="timestamp">Generated: 2025-10-25T21:55:17.298954</div>
+                    </div>
+                    
+                    <div class="metric-cards">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-value">DEV</div>
+                                    <div class="metric-label">Environment</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-value">0</div>
+                                    <div class="metric-label">Total Orders</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-value">0</div>
+                                    <div class="metric-label">Active Orders</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-value">13</div>
+                                    <div class="metric-label">Recent Files (24h)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="components-section">
+                        <h2 class="section-title">🔧 System Components</h2>
+                        <table class="table status-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Component</th>
+                                    <th>Status</th>
+                                    <th>Details</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+            <tr class="table-success">
+                <td style="text-transform: capitalize;">database</td>
+                <td><span class="badge bg-success">operational</span></td>
+                <td>sqlite</td>
+                <td>All systems operational</td>
+            </tr>
+            
+            <tr class="table-danger">
+                <td style="text-transform: capitalize;">migrations</td>
+                <td><span class="badge bg-danger">pending</span></td>
+                <td>N/A</td>
+                <td>All systems operational</td>
+            </tr>
+            
+            <tr class="table-success">
+                <td style="text-transform: capitalize;">file system</td>
+                <td><span class="badge bg-success">operational</span></td>
+                <td>13</td>
+                <td>All systems operational</td>
+            </tr>
+            
+            <tr class="table-success">
+                <td style="text-transform: capitalize;">orders</td>
+                <td><span class="badge bg-success">operational</span></td>
+                <td>0</td>
+                <td>All systems operational</td>
+            </tr>
+            
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="components-section">
+                        <h2 class="section-title">📊 System Information</h2>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">Database Configuration</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Dialect:</strong> sqlite</p>
+                                        <p><strong>Migration Status:</strong> pending</p>
+                                        <p><strong>Health:</strong> Healthy</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-info text-white">
+                                        <h5 class="mb-0">Runtime Environment</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Environment:</strong> dev</p>
+                                        <p><strong>Data Directory:</strong> C:\Users\thepr\Downloads\emo_options_bot_sqlite_plot_upgrade\data</p>
+                                        <p><strong>Reports Directory:</strong> C:\Users\thepr\Downloads\emo_options_bot_sqlite_plot_upgrade\data\reports</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="footer-section">
+                        <h5>EMO Options Bot - Institutional Integration System v2.0</h5>
+                        <p class="mb-0">Comprehensive system monitoring and reporting • Auto-refresh enabled</p>
+                    </div>
+                </div>
+            </div>
+            
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                // Auto-refresh every 5 minutes
+                setTimeout(() => window.location.reload(), 300000);
+                
+                // Add timestamp update
+                setInterval(() => {
+                    const timestamp = new Date().toLocaleString();
+                    document.querySelector('.timestamp').textContent = `Last Updated: ${timestamp}`;
+                }, 1000);
+            </script>
+        </body>
+        </html>
+        

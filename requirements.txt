@@ -11,11 +11,17 @@ pandas>=2.0.0
 numpy>=1.24.0
 matplotlib>=3.7.0
 scipy>=1.10.0
+yfinance>=0.2.0         # Yahoo Finance data
+PyYAML>=6.0.0          # YAML configuration
+finnhub-python>=2.4.0  # Finnhub API client
 
 # ====== Database & ORM ======
 sqlalchemy>=2.0.0
 psycopg2-binary>=2.9.0  # PostgreSQL/TimescaleDB
 alembic>=1.12.0         # Database migrations
+
+# ====== System Monitoring ======
+psutil>=5.9.0           # System performance monitoring
 
 # ====== Web & API ======
 fastapi>=0.100.0

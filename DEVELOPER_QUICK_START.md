@@ -48,6 +48,71 @@ This is a **production-ready options trading bot** that combines:
 
 ### **🐳 Production Deployment**
 14. **[docker-compose.prod.yml](docker-compose.prod.yml)** - Production Docker orchestration
+
+## Phase 3: Auto-Load, Tests & CI
+
+We added a small **auto-loader** that makes Phase 3 development painless:
+
+* `src/phase3/auto_loader.py` picks a module directory via `PHASE3_MODULE_DIR` env var or falls back to `./src/phase3` and `./src`.
+* It tries to import these core modules: `schemas`, `orchestrator`, `synthesizer`, `gates`, `asr_tts`, `phase3_integration`.
+* It prints clear diagnostics and fails gracefully if modules aren't present yet.
+
+### Run the loader locally
+```bash
+python -m src.phase3.auto_loader
+```
+Optionally point to a custom location:
+```bash
+$env:PHASE3_MODULE_DIR="C:\path\to\your\phase3"   # PowerShell
+export PHASE3_MODULE_DIR=/path/to/phase3          # bash/zsh
+```
+
+### Tests
+Two lightweight smoke tests were added:
+* `tests/test_phase3_autoload.py` – ensures the loader finds your modules (or skips cleanly).
+* `tests/test_phase3_pipeline.py` – if `Phase3TradingSystem` exists, it spins up and handles a simple NL request.
+
+Install dev deps:
+```bash
+pip install -r requirements-dev.txt
+pytest -q
+```
+
+### Phase 3 Test Harness
+Run the end-to-end Phase 3 acceptance test:
+```bash
+python tools/phase3_e2e_test.py
+```
+
+This executes three test scenarios (neutral/volatile/bullish) and:
+- Creates structured staged artifacts in `data/staged_orders/`
+- Shows ✅ "Order OK" or clear "blocked" messages
+- Provides repeatable, offline Phase 3 testing (no live LLM required)
+
+### CI
+We added comprehensive CI workflow that:
+* Installs your `requirements.txt`, optional `requirements-ml.txt`, and `requirements-dev.txt`
+* Runs `pytest -q` with skip-friendly behavior for fresh clones
+* Environment variables set for CI safety (`EMO_ENV=ci`, `PHASE3_MODULE_DIR=""`)
+
+## Phase 3 Skeleton & Local Dev Env
+
+A new placeholder module (`src/phase3/skeleton.py`) keeps imports stable while you build out Phase 3.
+
+### Local Env Setup
+Quickly create a machine-specific `.env` file:
+```bash
+python tools/generate_local_env.py
+```
+This produces `local.dev.env` with your paths and key variables for Phase 3 development.
+
+### Schema Contract Test
+`tests/test_phase3_schema_contract.py` verifies the core Phase 3 objects exist and are importable. Run:
+```bash
+pytest -q tests/test_phase3_schema_contract.py
+```
+
+### **🐳 Production Deployment**
 15. **[.github/workflows/ci.yml](.github/workflows/ci.yml)** - CI/CD pipeline
 16. **[Dockerfile](Dockerfile)** - Multi-stage production container
 

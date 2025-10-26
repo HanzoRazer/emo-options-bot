@@ -1,0 +1,31 @@
+ts: '2025-10-26T03:34:18.434884+00:00'
+symbol: SPY
+side: sell
+qty: 50
+type: limit
+limit: 400.0
+time_in_force: DAY
+strategy: covered_call
+note: Test position
+user: trader_1
+meta:
+  source: stage_order_cli
+  version: v4_institutional
+  cli_args:
+    symbol: SPY
+    side: sell
+    qty: 50
+    type: limit
+    limit: 400.0
+    stop: null
+    time_in_force: DAY
+    strategy: covered_call
+    note: Test position
+    user: trader_1
+    outdir: ops\staged_orders
+    format: yaml
+    list_pending: false
+    status: false
+    init_db: false
+    db_only: false
+    file_only: false

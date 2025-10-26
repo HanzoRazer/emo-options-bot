@@ -1,0 +1,77 @@
+{
+  "request": {
+    "user_text": "test market view for release validation",
+    "symbol": "SPY",
+    "horizon_days": 7,
+    "context": {},
+    "locale": "en",
+    "created_at": "2025-10-26T12:32:17.949808Z"
+  },
+  "llm_view": {
+    "symbol": "SPY",
+    "horizon_days": 7,
+    "view": "neutral",
+    "confidence": 0.62,
+    "notes": "MockLLM generated view"
+  },
+  "trade_plan": {
+    "strategy_type": "iron_condor",
+    "symbol": "SPY",
+    "legs": [
+      {
+        "action": "sell",
+        "instrument": "put",
+        "strike": 100.0,
+        "quantity": 1,
+        "expiration": null
+      },
+      {
+        "action": "buy",
+        "instrument": "put",
+        "strike": 95.0,
+        "quantity": 1,
+        "expiration": null
+      },
+      {
+        "action": "sell",
+        "instrument": "call",
+        "strike": 100.0,
+        "quantity": 1,
+        "expiration": null
+      },
+      {
+        "action": "buy",
+        "instrument": "call",
+        "strike": 105.0,
+        "quantity": 1,
+        "expiration": null
+      }
+    ],
+    "target_credit": null,
+    "max_loss": 500.0,
+    "rationale": "Neutral view \u2192 theta-positive iron condor",
+    "constraints": {
+      "max_risk_per_trade": 0.02,
+      "max_portfolio_risk": 0.1,
+      "min_option_oi": 100,
+      "max_spread_width": 5.0,
+      "min_dte": 5,
+      "max_dte": 45
+    },
+    "metadata": {
+      "llm_view": {
+        "symbol": "SPY",
+        "horizon_days": 7,
+        "view": "neutral",
+        "confidence": 0.62,
+        "notes": "MockLLM generated view"
+      }
+    },
+    "created_at": "2025-10-26T12:32:17.949864Z"
+  },
+  "validation": {
+    "ok": true,
+    "violations": []
+  },
+  "staged_at": "2025-10-26T12:32:17.950313Z"
+}

@@ -1,0 +1,240 @@
+
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>EMO Options Bot - Order Review Report</title>
+            <style>
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    margin: 0;
+                    padding: 20px;
+                    background-color: #f5f7fa;
+                    color: #333;
+                }
+                .container {
+                    max-width: 1400px;
+                    margin: 0 auto;
+                    background: white;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                    overflow: hidden;
+                }
+                .header {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 30px;
+                    text-align: center;
+                }
+                .header h1 {
+                    margin: 0;
+                    font-size: 2.5rem;
+                    font-weight: 300;
+                }
+                .timestamp {
+                    opacity: 0.9;
+                    margin-top: 10px;
+                    font-size: 1.1rem;
+                }
+                .metrics-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 20px;
+                    padding: 30px;
+                    background: #f8f9fa;
+                }
+                .metric-card {
+                    background: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+                    text-align: center;
+                    border-left: 4px solid #667eea;
+                }
+                .metric-value {
+                    font-size: 2rem;
+                    font-weight: bold;
+                    color: #667eea;
+                    margin: 10px 0;
+                }
+                .metric-label {
+                    color: #6c757d;
+                    font-size: 0.9rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                .score-card {
+                    border-left-color: #28a745;
+                }
+                .score-card .metric-value {
+                    color: #28a745;
+                }
+                .risk-card {
+                    border-left-color: #dc3545;
+                }
+                .risk-card .metric-value {
+                    color: #dc3545;
+                }
+                .orders-section {
+                    padding: 30px;
+                }
+                .section-title {
+                    font-size: 1.8rem;
+                    margin-bottom: 20px;
+                    color: #333;
+                    border-bottom: 2px solid #667eea;
+                    padding-bottom: 10px;
+                }
+                .orders-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                    font-size: 0.9rem;
+                }
+                .orders-table th {
+                    background: #667eea;
+                    color: white;
+                    padding: 15px 10px;
+                    text-align: left;
+                    font-weight: 600;
+                }
+                .orders-table td {
+                    padding: 12px 10px;
+                    border-bottom: 1px solid #eee;
+                }
+                .orders-table tr:hover {
+                    background-color: #f8f9fa;
+                }
+                .status {
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 0.8rem;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
+                .status-active {
+                    background: #d4edda;
+                    color: #155724;
+                }
+                .status-pending {
+                    background: #fff3cd;
+                    color: #856404;
+                }
+                .status-executed {
+                    background: #cce7ff;
+                    color: #004085;
+                }
+                .status-cancelled {
+                    background: #f8d7da;
+                    color: #721c24;
+                }
+                .footer {
+                    background: #f8f9fa;
+                    padding: 20px;
+                    text-align: center;
+                    color: #6c757d;
+                    border-top: 1px solid #dee2e6;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>📊 Order Review Report</h1>
+                    <div class="timestamp">Generated: 2025-10-25 21:55:17</div>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">3</div>
+                        <div class="metric-label">Total Orders</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">1</div>
+                        <div class="metric-label">Active Orders</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">1</div>
+                        <div class="metric-label">Executed Orders</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">$40,000</div>
+                        <div class="metric-label">Total Value</div>
+                    </div>
+                    <div class="metric-card score-card">
+                        <div class="metric-value">65.0%</div>
+                        <div class="metric-label">Performance Score</div>
+                    </div>
+                    <div class="metric-card score-card">
+                        <div class="metric-value">100.0%</div>
+                        <div class="metric-label">Compliance Score</div>
+                    </div>
+                    <div class="metric-card risk-card">
+                        <div class="metric-value">21.7</div>
+                        <div class="metric-label">Risk Score</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">$13,333</div>
+                        <div class="metric-label">Average Order Value</div>
+                    </div>
+                </div>
+                
+                <div class="orders-section">
+                    <h2 class="section-title">📋 Recent Orders</h2>
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Symbol</th>
+                                <th>Type</th>
+                                <th>Quantity</th>
+                                <th>Value</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+            <tr class="table-success">
+                <td>1</td>
+                <td>AAPL</td>
+                <td>limit</td>
+                <td>100</td>
+                <td>$15,000.00</td>
+                <td><span class="status status-executed">executed</span></td>
+                <td>2024-10-25T10:00:00</td>
+            </tr>
+            
+            <tr class="table-info">
+                <td>2</td>
+                <td>MSFT</td>
+                <td>market</td>
+                <td>50</td>
+                <td>$20,000.00</td>
+                <td><span class="status status-active">active</span></td>
+                <td>2024-10-25T11:00:00</td>
+            </tr>
+            
+            <tr class="table-warning">
+                <td>3</td>
+                <td>GOOGL</td>
+                <td>stop</td>
+                <td>25</td>
+                <td>$5,000.00</td>
+                <td><span class="status status-pending">pending</span></td>
+                <td>2024-10-25T12:00:00</td>
+            </tr>
+            
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="footer">
+                    <p>EMO Options Bot - Enhanced Order Review System v2.0</p>
+                    <p>Report generated automatically • Refresh for latest data</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        

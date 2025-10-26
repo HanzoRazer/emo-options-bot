@@ -1,0 +1,70 @@
+{
+  "request": "I think SPY will trade sideways next 2 weeks",
+  "snapshot": {
+    "SPY": {
+      "symbol": "SPY",
+      "price": 476.89,
+      "iv": 0.21,
+      "spread": 0.382,
+      "ts": "2025-10-26T06:13:20.404455+00:00"
+    },
+    "QQQ": {
+      "symbol": "QQQ",
+      "price": 410.35,
+      "iv": 0.24,
+      "spread": 0.328,
+      "ts": "2025-10-26T06:13:20.404494+00:00"
+    }
+  },
+  "plan": {
+    "strategy": "iron_condor",
+    "risk_budget": 1500.0,
+    "thesis": "Range-bound outlook; premium harvesting.",
+    "meta": {
+      "center_hint": "atm",
+      "width": 5
+    }
+  },
+  "order": {
+    "symbol": "SPY",
+    "strategy": "iron_condor",
+    "legs": [
+      {
+        "action": "sell",
+        "type": "call",
+        "strike": 486.9,
+        "qty": 3
+      },
+      {
+        "action": "buy",
+        "type": "call",
+        "strike": 491.9,
+        "qty": 3
+      },
+      {
+        "action": "sell",
+        "type": "put",
+        "strike": 466.9,
+        "qty": 3
+      },
+      {
+        "action": "buy",
+        "type": "put",
+        "strike": 461.9,
+        "qty": 3
+      }
+    ],
+    "risk_budget": 1500.0,
+    "thesis": "Range-bound outlook; premium harvesting.",
+    "ts": 1761459200.404577,
+    "meta": {
+      "center_hint": "atm",
+      "width": 5
+    }
+  },
+  "gate": {
+    "ok": true,
+    "violations": []
+  },
+  "status": "ok"
+}
