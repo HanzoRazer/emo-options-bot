@@ -1,4 +1,2 @@
-# LLM orchestration package
-from .orchestrator import LLMOrchestrator
-
-__all__ = ["LLMOrchestrator"]
+"""LLM module init (Phase 3).
+Provides orchestrator + schemas. Safe to import with zero deps."""

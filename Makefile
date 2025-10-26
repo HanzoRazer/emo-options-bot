@@ -43,6 +43,7 @@ NC := \033[0m
 .PHONY: docker-build docker-run deploy
 .PHONY: bump-patch bump-minor bump-major safe-tag patch minor major
 .PHONY: release-check release-check-comprehensive release-check-verbose
+.PHONY: smoke phase3-demo
 
 .DEFAULT_GOAL := help
 
@@ -358,4 +359,23 @@ ifeq ($(OS),Windows_NT)
 	@$(VENV_ACTIVATE); python tools/git_tag_helper.py --bump major
 else
 	@$(VENV_ACTIVATE) && python tools/git_tag_helper.py --bump major
+endif
+
+# ===== Phase 3 helpers =====
+.PHONY: smoke phase3-demo
+
+smoke: ## Run Phase 3 smoke test
+	@echo "$(BLUE)Running Phase 3 smoke test...$(NC)"
+ifeq ($(OS),Windows_NT)
+	@$(VENV_ACTIVATE); python -m tools.release_check
+else
+	@$(VENV_ACTIVATE) && python -m tools.release_check
+endif
+
+phase3-demo: ## Run Phase 3 demonstration
+	@echo "$(BLUE)Running Phase 3 demonstration...$(NC)"
+ifeq ($(OS),Windows_NT)
+	@$(VENV_ACTIVATE); python -c "from src.phase3_integration import Phase3TradingSystem; s=Phase3TradingSystem(); r=s.process_text('I think QQQ is volatile'); print(r)"
+else
+	@$(VENV_ACTIVATE) && python -c "from src.phase3_integration import Phase3TradingSystem; s=Phase3TradingSystem(); r=s.process_text('I think QQQ is volatile'); print(r)"
 endif
