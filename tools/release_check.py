@@ -22,7 +22,7 @@ def main() -> int:
         from src.voice.asr_tts import VoiceIO
         print("[OK] All Phase 3 imports successful")
     except Exception as e:
-        print("❌ Import failure:", e)
+        print("[ERROR] Import failure:", e)
         return 1
 
     try:
@@ -32,10 +32,10 @@ def main() -> int:
         res = system.process_text("I think SPY trades sideways")
         assert res.trade is not None, "No trade produced"
         assert res.trade.strategy_type == "iron_condor", "Expected iron_condor"
-        print("✅ Phase 3 smoke OK:", res.trade.strategy_type, res.trade.symbol)
+        print("[OK] Phase 3 smoke OK:", res.trade.strategy_type, res.trade.symbol)
         return 0
     except Exception as e:
-        print("❌ E2E failure:", e)
+        print("[ERROR] E2E failure:", e)
         return 2
 
 if __name__ == "__main__":
