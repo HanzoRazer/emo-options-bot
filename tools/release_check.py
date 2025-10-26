@@ -27,9 +27,9 @@ from typing import List, Tuple
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-OK = "✅"
-WARN = "⚠️ "
-ERR = "❌"
+OK = "[OK]"
+WARN = "[WARN]"
+ERR = "[ERR]"
 
 class CheckFailure(Exception):
     pass
