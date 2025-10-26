@@ -42,6 +42,7 @@ NC := \033[0m
 .PHONY: migrate run dashboard health
 .PHONY: docker-build docker-run deploy
 .PHONY: bump-patch bump-minor bump-major safe-tag patch minor major
+.PHONY: release-check release-check-comprehensive release-check-verbose
 
 .DEFAULT_GOAL := help
 
@@ -186,8 +187,16 @@ else
 	@$(VENV_ACTIVATE) && pytest -v
 endif
 
-release-check: ## Run Phase 3 release readiness check
-	@echo "$(BLUE)Running Phase 3 release check...$(NC)"
+release-check: ## Run Phase 3 release readiness check (streamlined)
+	@echo "$(BLUE)Running Phase 3 release check (streamlined)...$(NC)"
+ifeq ($(OS),Windows_NT)
+	@$(VENV_ACTIVATE); python tools/release_check.py
+else
+	@$(VENV_ACTIVATE) && python tools/release_check.py
+endif
+
+release-check-comprehensive: ## Run comprehensive Phase 3 release check
+	@echo "$(BLUE)Running comprehensive Phase 3 release check...$(NC)"
 ifeq ($(OS),Windows_NT)
 	@powershell.exe -ExecutionPolicy Bypass -File "run_release_check.ps1"
 else
@@ -197,7 +206,10 @@ endif
 release-check-verbose: ## Run Phase 3 release check with verbose output
 	@echo "$(BLUE)Running Phase 3 release check (verbose)...$(NC)"
 ifeq ($(OS),Windows_NT)
-	@powershell.exe -ExecutionPolicy Bypass -File "run_release_check.ps1" -Verbose
+	@$(VENV_ACTIVATE); python tools/release_check.py --verbose
+else
+	@$(VENV_ACTIVATE) && python tools/release_check.py --verbose
+endif
 else
 	@chmod +x run_release_check.sh && ./run_release_check.sh --verbose
 endif
