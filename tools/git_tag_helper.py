@@ -36,8 +36,9 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION_FILE = ROOT / "VERSION"
 
 DEFAULT_RELEASE_CMDS = [
-    "make release-check",
     "python tools/release_check.py",
+    "make release-check",
+    "python tools/phase3_release_check.py",
     "python scripts/release_check.py",
 ]
 
