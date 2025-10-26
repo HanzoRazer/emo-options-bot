@@ -1,0 +1,8 @@
+name: Bug report
+description: Report a problem
+title: "[BUG]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    attributes: { label: What happened?, placeholder: "Steps to reproduce..." }
+    validations: { required: true }
