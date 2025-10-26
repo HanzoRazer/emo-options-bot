@@ -1,0 +1,18 @@
+schema: emo_order_draft/v1
+created_ts: '2025-10-25T08:47:24.773959+00:00'
+symbol: QQQ
+side: buy
+qty: 1
+order_type: market
+time_in_force: day
+limit_price: null
+strategy: null
+meta:
+  original_function: iron_condor_entry
+  function_module: __main__
+  staging_intercepted: true
+language: en
+status: DRAFT
+created_by: emo_stage_order_client
+version: 1.0.0
+signature: 804656744adf2a30

@@ -1,0 +1,129 @@
+{
+  "timestamp": "2025-10-25T01:59:46.198394",
+  "portfolio": {
+    "equity": 150000,
+    "cash": 13250,
+    "positions": 3,
+    "risk_assessment": {
+      "equity": 150000,
+      "cash": 13250,
+      "positions": 3,
+      "risk_used": 16275,
+      "risk_cap": 37500.0,
+      "risk_util": 0.434,
+      "beta_exposure": 0.9798333333333333,
+      "drawdown": 0.0,
+      "drawdown_breached": false
+    }
+  },
+  "scenarios": [
+    {
+      "scenario": "High IV Neutral Market",
+      "symbol": "SPY",
+      "iv_rank": 45.0,
+      "orders_generated": 1,
+      "orders": [
+        {
+          "strategy": "iron_condor",
+          "side": "sell",
+          "qty": 1,
+          "type": "iron_condor_open",
+          "risk_note": "Max loss ~$500, Target profit ~$30"
+        }
+      ]
+    },
+    {
+      "scenario": "Bullish Market with Moderate IV",
+      "symbol": "SPY",
+      "iv_rank": 28.0,
+      "orders_generated": 2,
+      "orders": [
+        {
+          "strategy": "put_credit_spread",
+          "side": "sell",
+          "qty": 1,
+          "type": "put_credit_spread_open",
+          "risk_note": "Max loss ~$475.0"
+        },
+        {
+          "strategy": "covered_call",
+          "side": "sell",
+          "qty": 1,
+          "type": "covered_call_open",
+          "risk_note": "Caps upside at strike price, covers 200 shares"
+        }
+      ]
+    },
+    {
+      "scenario": "Earnings Event High Volatility",
+      "symbol": "AAPL",
+      "iv_rank": 35.0,
+      "orders_generated": 2,
+      "orders": [
+        {
+          "strategy": "iron_condor",
+          "side": "sell",
+          "qty": 1,
+          "type": "iron_condor_open",
+          "risk_note": "Max loss ~$500, Target profit ~$30"
+        },
+        {
+          "strategy": "long_straddle",
+          "side": "buy",
+          "qty": 1,
+          "type": "long_straddle_open",
+          "risk_note": "Max loss = premium paid, profits if move > 8.5%"
+        }
+      ]
+    },
+    {
+      "scenario": "FOMC Meeting Volatility",
+      "symbol": "SPY",
+      "iv_rank": 52.0,
+      "orders_generated": 2,
+      "orders": [
+        {
+          "strategy": "iron_condor",
+          "side": "sell",
+          "qty": 1,
+          "type": "iron_condor_open",
+          "risk_note": "Max loss ~$500, Target profit ~$30"
+        },
+        {
+          "strategy": "long_straddle",
+          "side": "buy",
+          "qty": 1,
+          "type": "long_straddle_open",
+          "risk_note": "Max loss = premium paid, profits if move > 6.5%"
+        }
+      ]
+    },
+    {
+      "scenario": "Low IV Market with Shares",
+      "symbol": "SPY",
+      "iv_rank": 15.0,
+      "orders_generated": 1,
+      "orders": [
+        {
+          "strategy": "covered_call",
+          "side": "sell",
+          "qty": 1,
+          "type": "covered_call_open",
+          "risk_note": "Caps upside at strike price, covers 400 shares"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_scenarios": 5,
+    "total_orders": 8,
+    "strategies_used": [
+      "long_straddle",
+      "iron_condor",
+      "put_credit_spread",
+      "covered_call"
+    ],
+    "approved_orders": 8,
+    "rejected_orders": 0
+  }
+}

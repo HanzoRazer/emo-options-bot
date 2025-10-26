@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "emo_order_draft.schema.json",
+  "title": "EMO Order Draft v1",
+  "description": "Schema for EMO Options Bot order draft files",
+  "type": "object",
+  "required": ["schema", "created_ts", "symbol", "side", "qty", "order_type", "time_in_force", "status", "signature"],
+  "properties": {
+    "schema": { 
+      "const": "emo_order_draft/v1",
+      "description": "Schema version identifier"
+    },
+    "created_ts": { 
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the order was created"
+    },
+    "symbol": { 
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 10,
+      "pattern": "^[A-Z]{1,10}$",
+      "description": "Trading symbol (e.g., AAPL, SPY)"
+    },
+    "side": { 
+      "enum": ["buy", "sell"],
+      "description": "Order side: buy or sell"
+    },
+    "qty": { 
+      "type": "number", 
+      "minimum": 0,
+      "exclusiveMinimum": true,
+      "description": "Quantity to trade (must be positive)"
+    },
+    "order_type": { 
+      "enum": ["market", "limit"],
+      "description": "Order type: market or limit"
+    },
+    "time_in_force": { 
+      "type": "string",
+      "enum": ["day", "gtc", "ioc", "fok"],
+      "description": "Time in force for the order"
+    },
+    "limit_price": { 
+      "type": ["number", "null"],
+      "minimum": 0,
+      "description": "Limit price (required for limit orders)"
+    },
+    "strategy": { 
+      "type": ["string", "null"],
+      "description": "Trading strategy name"
+    },
+    "meta": { 
+      "type": "object",
+      "description": "Additional metadata for the order"
+    },
+    "language": { 
+      "type": "string",
+      "pattern": "^[a-z]{2}$",
+      "description": "Language code for messages (ISO 639-1)"
+    },
+    "status": { 
+      "enum": ["DRAFT", "APPROVED", "EXECUTED", "CANCELLED"],
+      "description": "Order status in the workflow"
+    },
+    "signature": { 
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 64,
+      "description": "Cryptographic signature for order integrity"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "System or user that created the order"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the staging system"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Who approved the order (if status is APPROVED)"
+    },
+    "approved_ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the order was approved"
+    },
+    "executed_ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the order was executed"
+    }
+  },
+  "additionalProperties": true,
+  "if": {
+    "properties": {
+      "order_type": { "const": "limit" }
+    }
+  },
+  "then": {
+    "required": ["limit_price"],
+    "properties": {
+      "limit_price": {
+        "type": "number",
+        "minimum": 0,
+        "exclusiveMinimum": true
+      }
+    }
+  }
+}

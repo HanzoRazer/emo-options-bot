@@ -1,0 +1,22 @@
+{
+  "staging_disabled": "Order staging disabled (set EMO_STAGE_ORDERS=1 to enable).",
+  "yaml_missing": "PyYAML not installed. Falling back to JSON for order drafts.",
+  "draft_written": "Draft written to {path}",
+  "order_staged": "✅ Order staged successfully",
+  "invalid_side": "❌ Invalid order side: {side}. Must be 'buy' or 'sell'",
+  "invalid_order_type": "❌ Invalid order type: {order_type}. Must be 'market' or 'limit'",
+  "missing_limit_price": "❌ Limit price required for limit orders",
+  "invalid_quantity": "❌ Invalid quantity: {qty}. Must be positive number",
+  "invalid_symbol": "❌ Invalid symbol: {symbol}. Symbol cannot be empty",
+  "staging_error": "❌ Error staging order: {error}",
+  "cli_help": "Stage an order draft file",
+  "cli_symbol_help": "Trading symbol (e.g., AAPL, SPY)",
+  "cli_side_help": "Order side: buy or sell",
+  "cli_qty_help": "Quantity to trade",
+  "cli_type_help": "Order type: market or limit",
+  "cli_limit_help": "Limit price (required for limit orders)",
+  "cli_tif_help": "Time in force (default: day)",
+  "cli_strategy_help": "Trading strategy name",
+  "cli_format_help": "Output format: yaml or json",
+  "cli_lang_help": "Language for messages"
+}

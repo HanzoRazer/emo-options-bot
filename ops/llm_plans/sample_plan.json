@@ -1,0 +1,35 @@
+{
+  "symbol": "SPY",
+  "expiry": "2025-11-15",
+  "risk_constraints": {
+    "max_loss": 1500
+  },
+  "notes": "LLM-approved: sideways outlook test plan",
+  "strategy_type": "iron_condor",
+  "legs": [
+    {
+      "instrument": "put",
+      "strike": 440,
+      "quantity": 1,
+      "action": "sell"
+    },
+    {
+      "instrument": "put",
+      "strike": 435,
+      "quantity": 1,
+      "action": "buy"
+    },
+    {
+      "instrument": "call",
+      "strike": 460,
+      "quantity": 1,
+      "action": "sell"
+    },
+    {
+      "instrument": "call",
+      "strike": 465,
+      "quantity": 1,
+      "action": "buy"
+    }
+  ]
+}

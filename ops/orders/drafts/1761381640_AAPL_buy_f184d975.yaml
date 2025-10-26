@@ -1,0 +1,15 @@
+schema: emo_order_draft/v1
+created_ts: '2025-10-25T08:40:40.915281+00:00'
+symbol: AAPL
+side: buy
+qty: 25
+order_type: limit
+time_in_force: day
+limit_price: 150.0
+strategy: iron_condor
+meta: {}
+language: en
+status: DRAFT
+created_by: emo_stage_order_client
+version: 1.0.0
+signature: 5f8841ccd252eb3b

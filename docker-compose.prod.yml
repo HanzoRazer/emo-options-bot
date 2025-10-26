@@ -1,0 +1,373 @@
+# Production Docker Compose Configuration
+# EMO Options Bot - Production Environment
+
+version: '3.8'
+
+services:
+  # =============================================================================
+  # TimescaleDB Database (Production)
+  # =============================================================================
+  
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: emo-timescaledb-prod
+    restart: unless-stopped
+    
+    environment:
+      POSTGRES_DB: emo_options_prod
+      POSTGRES_USER: emo_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "-A md5"
+    
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+      - ./scripts/sql/init_timescale.sql:/docker-entrypoint-initdb.d/01_init_timescale.sql
+      - ./backups:/backups
+    
+    ports:
+      - "5432:5432"
+    
+    networks:
+      - emo-network
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U emo_user -d emo_options_prod"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    command: >
+      postgres
+      -c shared_preload_libraries=timescaledb
+      -c max_connections=200
+      -c shared_buffers=512MB
+      -c effective_cache_size=1GB
+      -c work_mem=16MB
+      -c maintenance_work_mem=128MB
+      -c random_page_cost=1.1
+      -c temp_file_limit=2GB
+      -c log_min_duration_statement=1000
+      -c log_checkpoints=on
+      -c log_connections=on
+      -c log_disconnections=on
+      -c log_lock_waits=on
+
+  # =============================================================================
+  # Redis Cache (Production)
+  # =============================================================================
+  
+  redis:
+    image: redis:7-alpine
+    container_name: emo-redis-prod
+    restart: unless-stopped
+    
+    volumes:
+      - redis_data:/data
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf
+    
+    ports:
+      - "6379:6379"
+    
+    networks:
+      - emo-network
+    
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  # =============================================================================
+  # EMO Options Bot Application (Production)
+  # =============================================================================
+  
+  app:
+    image: ghcr.io/your-org/emo-options-bot:latest
+    container_name: emo-app-prod
+    restart: unless-stopped
+    
+    environment:
+      EMO_ENV: prod
+      DB_URL: postgresql://emo_user:${POSTGRES_PASSWORD}@timescaledb:5432/emo_options_prod
+      REDIS_URL: redis://redis:6379/0
+      ALPACA_KEY_ID: ${ALPACA_KEY_ID}
+      ALPACA_SECRET_KEY: ${ALPACA_SECRET_KEY}
+      ALPACA_BASE_URL: ${ALPACA_BASE_URL:-https://api.alpaca.markets}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      TZ: America/New_York
+    
+    volumes:
+      - app_data:/app/data
+      - app_logs:/app/logs
+      - app_backups:/app/backups
+      - ./config/prod.env:/app/.env.prod:ro
+    
+    ports:
+      - "8082:8082"
+    
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    
+    networks:
+      - emo-network
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.5'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # =============================================================================
+  # Background Worker (Production)
+  # =============================================================================
+  
+  worker:
+    image: ghcr.io/your-org/emo-options-bot:latest
+    container_name: emo-worker-prod
+    restart: unless-stopped
+    
+    environment:
+      EMO_ENV: prod
+      DB_URL: postgresql://emo_user:${POSTGRES_PASSWORD}@timescaledb:5432/emo_options_prod
+      REDIS_URL: redis://redis:6379/0
+      ALPACA_KEY_ID: ${ALPACA_KEY_ID}
+      ALPACA_SECRET_KEY: ${ALPACA_SECRET_KEY}
+      ALPACA_BASE_URL: ${ALPACA_BASE_URL:-https://api.alpaca.markets}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      TZ: America/New_York
+    
+    volumes:
+      - app_data:/app/data
+      - app_logs:/app/logs
+      - ./config/prod.env:/app/.env.prod:ro
+    
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    
+    networks:
+      - emo-network
+    
+    command: ["worker"]
+    
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # =============================================================================
+  # Scheduler Service (Production)
+  # =============================================================================
+  
+  scheduler:
+    image: ghcr.io/your-org/emo-options-bot:latest
+    container_name: emo-scheduler-prod
+    restart: unless-stopped
+    
+    environment:
+      EMO_ENV: prod
+      DB_URL: postgresql://emo_user:${POSTGRES_PASSWORD}@timescaledb:5432/emo_options_prod
+      REDIS_URL: redis://redis:6379/0
+      TZ: America/New_York
+    
+    volumes:
+      - app_data:/app/data
+      - app_logs:/app/logs
+      - ./config/prod.env:/app/.env.prod:ro
+    
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    
+    networks:
+      - emo-network
+    
+    command: ["scheduler"]
+    
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.1'
+
+  # =============================================================================
+  # Data Ingestion Service (Production)
+  # =============================================================================
+  
+  data-ingestion:
+    image: ghcr.io/your-org/emo-options-bot:latest
+    container_name: emo-data-ingestion-prod
+    restart: unless-stopped
+    
+    environment:
+      EMO_ENV: prod
+      DB_URL: postgresql://emo_user:${POSTGRES_PASSWORD}@timescaledb:5432/emo_options_prod
+      REDIS_URL: redis://redis:6379/0
+      ALPACA_KEY_ID: ${ALPACA_KEY_ID}
+      ALPACA_SECRET_KEY: ${ALPACA_SECRET_KEY}
+      ALPACA_BASE_URL: ${ALPACA_BASE_URL:-https://api.alpaca.markets}
+      POLYGON_API_KEY: ${POLYGON_API_KEY}
+      TZ: America/New_York
+    
+    volumes:
+      - app_data:/app/data
+      - app_logs:/app/logs
+      - ./config/prod.env:/app/.env.prod:ro
+    
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    
+    networks:
+      - emo-network
+    
+    command: ["data-ingestion"]
+    
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # =============================================================================
+  # Nginx Reverse Proxy (Production)
+  # =============================================================================
+  
+  nginx:
+    image: nginx:alpine
+    container_name: emo-nginx-prod
+    restart: unless-stopped
+    
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    
+    ports:
+      - "80:80"
+      - "443:443"
+    
+    depends_on:
+      - app
+    
+    networks:
+      - emo-network
+    
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =============================================================================
+  # Monitoring and Observability
+  # =============================================================================
+  
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: emo-prometheus-prod
+    restart: unless-stopped
+    
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    
+    ports:
+      - "9090:9090"
+    
+    networks:
+      - emo-network
+    
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--storage.tsdb.retention.time=30d'
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: emo-grafana-prod
+    restart: unless-stopped
+    
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+    
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./config/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    
+    ports:
+      - "3000:3000"
+    
+    depends_on:
+      - prometheus
+    
+    networks:
+      - emo-network
+
+# =============================================================================
+# Networks and Volumes
+# =============================================================================
+
+networks:
+  emo-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  timescale_data:
+    driver: local
+  redis_data:
+    driver: local
+  app_data:
+    driver: local
+  app_logs:
+    driver: local
+  app_backups:
+    driver: local
+  nginx_logs:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local

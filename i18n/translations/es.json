@@ -1,0 +1,22 @@
+{
+  "staging_disabled": "Staging de órdenes desactivado (defina EMO_STAGE_ORDERS=1 para activar).",
+  "yaml_missing": "PyYAML no está instalado. Cambiando a JSON para los borradores.",
+  "draft_written": "Borrador guardado en {path}",
+  "order_staged": "✅ Orden preparada exitosamente",
+  "invalid_side": "❌ Lado de orden inválido: {side}. Debe ser 'buy' o 'sell'",
+  "invalid_order_type": "❌ Tipo de orden inválido: {order_type}. Debe ser 'market' o 'limit'",
+  "missing_limit_price": "❌ Precio límite requerido para órdenes límite",
+  "invalid_quantity": "❌ Cantidad inválida: {qty}. Debe ser un número positivo",
+  "invalid_symbol": "❌ Símbolo inválido: {symbol}. El símbolo no puede estar vacío",
+  "staging_error": "❌ Error al preparar orden: {error}",
+  "cli_help": "Preparar un archivo borrador de orden",
+  "cli_symbol_help": "Símbolo de trading (ej., AAPL, SPY)",
+  "cli_side_help": "Lado de la orden: buy o sell",
+  "cli_qty_help": "Cantidad a negociar",
+  "cli_type_help": "Tipo de orden: market o limit",
+  "cli_limit_help": "Precio límite (requerido para órdenes límite)",
+  "cli_tif_help": "Tiempo en vigencia (por defecto: day)",
+  "cli_strategy_help": "Nombre de la estrategia de trading",
+  "cli_format_help": "Formato de salida: yaml o json",
+  "cli_lang_help": "Idioma para los mensajes"
+}

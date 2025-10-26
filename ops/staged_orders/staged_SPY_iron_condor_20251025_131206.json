@@ -1,0 +1,68 @@
+{
+  "strategy_type": "iron_condor",
+  "symbol": "SPY",
+  "expiration": "2025-12-12",
+  "spot_price": 450.0,
+  "legs": [
+    {
+      "action": "sell",
+      "instrument": "put",
+      "strike": 428,
+      "quantity": 1
+    },
+    {
+      "action": "buy",
+      "instrument": "put",
+      "strike": 422,
+      "quantity": 1
+    },
+    {
+      "action": "sell",
+      "instrument": "call",
+      "strike": 472,
+      "quantity": 1
+    },
+    {
+      "action": "buy",
+      "instrument": "call",
+      "strike": 478,
+      "quantity": 1
+    }
+  ],
+  "risk_constraints": {
+    "max_loss": 500.0,
+    "max_trade_risk_pct": 0.02,
+    "max_position_size": 5000.0
+  },
+  "metadata": {
+    "generated_at": "2025-10-25T13:10:31.863808",
+    "generator": "llm_trade_plan.py",
+    "prompt": "Iron condor on SPY",
+    "status": "draft",
+    "llm_analysis": {
+      "strategy": "iron_condor",
+      "outlook": "neutral",
+      "confidence": 50,
+      "source": "fallback"
+    },
+    "original_prompt": "Iron condor on SPY with ~ max risk"
+  },
+  "notes": "Generated iron condor plan for SPY",
+  "staging": {
+    "staged_at": "2025-10-25T13:12:06.760572",
+    "source": "phase3_stage_trade.py",
+    "priority": "normal",
+    "reviewer": null,
+    "notes": "Phase 3 test trade",
+    "status": "pending_review",
+    "risk_assessment": "pending",
+    "staging_id": "SPY_iron_condor_20251025_131206"
+  },
+  "execution": {
+    "status": "not_executed",
+    "execution_method": "manual_review",
+    "requires_approval": true,
+    "estimated_execution_time": "2-5 minutes",
+    "broker": "alpaca_paper"
+  }
+}

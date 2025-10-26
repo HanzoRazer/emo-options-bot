@@ -1,0 +1,23 @@
+ts,symbol,strategy,action,confidence,notes
+2025-10-25T07:11:58.905201+00:00,SPY,IronCondor,hold,0.277,IVR=0.30 (<0.25) or trend=down - unfavorable conditions
+2025-10-25T07:11:58.905245+00:00,QQQ,IronCondor,hold,0.312,"IVR=0.26, trend=mixed - monitoring conditions"
+2025-10-25T07:11:58.905273+00:00,AAPL,IronCondor,enter,1.000,"IVR=0.52 (>0.25), trend=sideways - favorable for premium collection"
+2025-10-25T07:11:58.905295+00:00,MSFT,IronCondor,hold,0.140,IVR=0.24 (<0.25) or trend=up - unfavorable conditions
+2025-10-25T07:11:58.905506+00:00,SPY,PutCreditSpread,hold,0.186,"IVR=0.30, trend=down - bearish trend unfavorable for put spreads"
+2025-10-25T07:11:58.905527+00:00,QQQ,PutCreditSpread,hold,0.305,"IVR=0.26, trend=mixed - monitoring for entry opportunity"
+2025-10-25T07:11:58.905539+00:00,AAPL,PutCreditSpread,enter,0.613,"IVR=0.52 (>0.15), trend=sideways - favorable for put spreads"
+2025-10-25T07:11:58.905548+00:00,MSFT,PutCreditSpread,enter,0.423,"IVR=0.24 (>0.15), trend=up - favorable for put spreads"
+2025-10-25T07:12:50.407265+00:00,SPY,IronCondor,enter,0.840,"IVR=0.45 (>0.25), trend=sideways - favorable for premium collection"
+2025-10-25T07:12:50.407308+00:00,QQQ,IronCondor,hold,0.252,IVR=0.28 (<0.25) or trend=up - unfavorable conditions
+2025-10-25T07:12:50.407330+00:00,AAPL,IronCondor,hold,0.240,IVR=0.15 (<0.25) or trend=sideways - unfavorable conditions
+2025-10-25T07:12:50.407465+00:00,SPY,PutCreditSpread,enter,0.550,"IVR=0.45 (>0.15), trend=sideways - favorable for put spreads"
+2025-10-25T07:12:50.407497+00:00,QQQ,PutCreditSpread,enter,0.466,"IVR=0.28 (>0.15), trend=up - favorable for put spreads"
+2025-10-25T07:12:50.407513+00:00,AAPL,PutCreditSpread,hold,0.275,"IVR=0.15, trend=sideways - monitoring for entry opportunity"
+2025-10-25T18:29:36.389178+00:00,SPY,IronCondor,enter,0.541,"IVR=0.33 (>0.25), trend=sideways - favorable for premium collection"
+2025-10-25T18:29:36.389219+00:00,QQQ,IronCondor,hold,0.370,"IVR=0.36, trend=down - monitoring conditions"
+2025-10-25T18:29:36.389241+00:00,AAPL,IronCondor,hold,0.614,"IVR=0.54, trend=down - monitoring conditions"
+2025-10-25T18:29:36.389260+00:00,MSFT,IronCondor,hold,0.140,IVR=0.19 (<0.25) or trend=up - unfavorable conditions
+2025-10-25T18:29:36.389500+00:00,SPY,PutCreditSpread,enter,0.436,"IVR=0.33 (>0.15), trend=sideways - favorable for put spreads"
+2025-10-25T18:29:36.389520+00:00,QQQ,PutCreditSpread,hold,0.214,"IVR=0.36, trend=down - bearish trend unfavorable for put spreads"
+2025-10-25T18:29:36.389531+00:00,AAPL,PutCreditSpread,hold,0.287,"IVR=0.54, trend=down - bearish trend unfavorable for put spreads"
+2025-10-25T18:29:36.389539+00:00,MSFT,PutCreditSpread,enter,0.373,"IVR=0.19 (>0.15), trend=up - favorable for put spreads"

@@ -1,0 +1,14 @@
+{
+  "ts": "2025-10-25T08:21:44.901222",
+  "symbol": "SPY",
+  "signal": "mild_bearish",
+  "confidence": 0.72,
+  "horizon": "1d",
+  "price_target": 433.46,
+  "volatility_regime": "moderate",
+  "trend_strength": 0.46,
+  "support_level": 448.37,
+  "resistance_level": 464.22,
+  "generated_by": "ml_outlook_generator",
+  "model_version": "1.0.0"
+}

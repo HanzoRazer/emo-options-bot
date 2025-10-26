@@ -1,0 +1,25 @@
+
+STAGED TRADE SUMMARY
+==================
+
+Strategy: Iron Condor
+Symbol: SPY
+Expiration: 2025-12-12
+
+Legs:
+  1. Sell 1 put @ $428
+  2. Buy 1 put @ $422
+  3. Sell 1 call @ $472
+  4. Buy 1 call @ $478
+
+Risk Profile:
+  Max Loss: $500.0
+  Risk %: 2.0%
+
+Staging Info:
+  Priority: normal
+  Status: pending_review
+  Staged At: 2025-10-25T13:14:27.598894
+  Notes: Phase 3 pipeline test
+
+STATUS: PENDING MANUAL REVIEW

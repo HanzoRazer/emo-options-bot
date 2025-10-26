@@ -1,0 +1,11 @@
+{
+  "prediction": "slightly_bullish",
+  "confidence": 0.67,
+  "models": [
+    "LSTM",
+    "RandomForest",
+    "XGBoost"
+  ],
+  "ts": "2025-10-25T18:29:36.387879+00:00",
+  "notes": "Market showing mild bullish signals with moderate confidence"
+}

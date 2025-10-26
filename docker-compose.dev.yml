@@ -1,0 +1,183 @@
+# Development Docker Compose Configuration
+# EMO Options Bot - Development Environment
+
+version: '3.8'
+
+services:
+  # =============================================================================
+  # SQLite Development (Local file)
+  # =============================================================================
+  
+  # Note: SQLite runs locally, no container needed
+  # Database file will be at ./data/emo_options_dev.sqlite
+
+  # =============================================================================
+  # Redis Cache (Development)
+  # =============================================================================
+  
+  redis:
+    image: redis:7-alpine
+    container_name: emo-redis-dev
+    restart: unless-stopped
+    
+    ports:
+      - "6381:6379"
+    
+    networks:
+      - emo-dev-network
+    
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    command: redis-server --appendonly yes
+
+  # =============================================================================
+  # EMO Options Bot Application (Development)
+  # =============================================================================
+  
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        EMO_ENV: dev
+    container_name: emo-app-dev
+    restart: unless-stopped
+    
+    environment:
+      EMO_ENV: dev
+      DB_URL: sqlite:///app/data/emo_options_dev.sqlite
+      REDIS_URL: redis://redis:6379/0
+      ALPACA_KEY_ID: ${ALPACA_KEY_ID}
+      ALPACA_SECRET_KEY: ${ALPACA_SECRET_KEY}
+      ALPACA_BASE_URL: https://paper-api.alpaca.markets
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      PYTHONDONTWRITEBYTECODE: 1
+      PYTHONUNBUFFERED: 1
+      TZ: America/New_York
+    
+    volumes:
+      - ./src:/app/src
+      - ./scripts:/app/scripts
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./config/dev.env:/app/.env.dev:ro
+    
+    ports:
+      - "8084:8082"  # Development port
+      - "5678:5678"  # Debug port for VS Code
+    
+    depends_on:
+      redis:
+        condition: service_healthy
+    
+    networks:
+      - emo-dev-network
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    # Development mode - mount source code for hot reload
+    command: ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8082", "--reload"]
+
+  # =============================================================================
+  # Development Tools
+  # =============================================================================
+  
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        EMO_ENV: dev
+    container_name: emo-jupyter-dev
+    restart: unless-stopped
+    
+    environment:
+      EMO_ENV: dev
+      DB_URL: sqlite:///app/data/emo_options_dev.sqlite
+      REDIS_URL: redis://redis:6379/0
+      JUPYTER_ENABLE_LAB: "yes"
+    
+    volumes:
+      - ./src:/app/src
+      - ./scripts:/app/scripts
+      - ./data:/app/data
+      - ./notebooks:/app/notebooks
+      - ./config/dev.env:/app/.env.dev:ro
+    
+    ports:
+      - "8888:8888"
+    
+    depends_on:
+      redis:
+        condition: service_healthy
+    
+    networks:
+      - emo-dev-network
+    
+    command: >
+      jupyter lab
+      --ip=0.0.0.0
+      --port=8888
+      --no-browser
+      --allow-root
+      --NotebookApp.token=''
+      --NotebookApp.password=''
+
+  # =============================================================================
+  # Database Administration (Development)
+  # =============================================================================
+  
+  adminer:
+    image: adminer:latest
+    container_name: emo-adminer-dev
+    restart: unless-stopped
+    
+    ports:
+      - "8080:8080"
+    
+    networks:
+      - emo-dev-network
+    
+    environment:
+      ADMINER_DEFAULT_SERVER: app
+      ADMINER_DESIGN: "hydra"
+
+  # =============================================================================
+  # Mail Server (Development - MailHog)
+  # =============================================================================
+  
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: emo-mailhog-dev
+    restart: unless-stopped
+    
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    
+    networks:
+      - emo-dev-network
+
+# =============================================================================
+# Networks and Volumes
+# =============================================================================
+
+networks:
+  emo-dev-network:
+    driver: bridge
+
+volumes:
+  jupyter_data:
+    driver: local

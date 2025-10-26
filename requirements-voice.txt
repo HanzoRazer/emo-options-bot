@@ -1,0 +1,23 @@
+# Voice Interface Optional Requirements
+# Install with: pip install -r requirements-voice.txt
+
+# ====== Core Voice Processing ======
+SpeechRecognition>=3.10.0  # Speech-to-text
+pyttsx3>=2.90              # Text-to-speech
+pyaudio>=0.2.11            # Audio processing
+
+# ====== Enhanced Audio Processing ======
+librosa>=0.10.0            # Audio analysis
+soundfile>=0.12.0          # Audio file I/O
+webrtcvad>=2.0.10          # Voice activity detection
+
+# ====== Cloud Speech Services (Optional) ======
+azure-cognitiveservices-speech>=1.24.0  # Azure Speech Services
+google-cloud-speech>=2.21.0             # Google Cloud Speech
+boto3>=1.28.0              # AWS Polly/Transcribe
+
+# ====== System Dependencies ======
+# Note: pyaudio may require system-level dependencies:
+# - Windows: Install Microsoft Visual C++ 14.0 or use conda
+# - Linux: sudo apt-get install portaudio19-dev python3-pyaudio
+# - macOS: brew install portaudio

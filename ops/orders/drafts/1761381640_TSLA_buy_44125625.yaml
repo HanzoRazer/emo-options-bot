@@ -1,0 +1,15 @@
+schema: emo_order_draft/v1
+created_ts: '2025-10-25T08:40:40.930977+00:00'
+symbol: TSLA
+side: buy
+qty: 5
+order_type: market
+time_in_force: day
+limit_price: null
+strategy: breakout
+meta: {}
+language: fr
+status: DRAFT
+created_by: emo_stage_order_client
+version: 1.0.0
+signature: dd01a6858950347d

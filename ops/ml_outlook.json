@@ -1,0 +1,14 @@
+{
+  "ts": "2025-10-25T08:21:44.905889",
+  "symbol": "AAPL",
+  "signal": "mild_bullish",
+  "confidence": 0.6,
+  "horizon": "1d",
+  "price_target": null,
+  "volatility_regime": "high",
+  "trend_strength": 0.23,
+  "support_level": null,
+  "resistance_level": null,
+  "generated_by": "ml_outlook_generator",
+  "model_version": "1.0.0"
+}

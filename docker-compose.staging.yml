@@ -1,0 +1,211 @@
+# Staging Docker Compose Configuration
+# EMO Options Bot - Staging Environment
+
+version: '3.8'
+
+services:
+  # =============================================================================
+  # PostgreSQL Database (Staging)
+  # =============================================================================
+  
+  postgres:
+    image: postgres:15-alpine
+    container_name: emo-postgres-staging
+    restart: unless-stopped
+    
+    environment:
+      POSTGRES_DB: emo_options_staging
+      POSTGRES_USER: emo_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-staging_password}
+    
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    
+    ports:
+      - "5433:5432"
+    
+    networks:
+      - emo-staging-network
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U emo_user -d emo_options_staging"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =============================================================================
+  # Redis Cache (Staging)
+  # =============================================================================
+  
+  redis:
+    image: redis:7-alpine
+    container_name: emo-redis-staging
+    restart: unless-stopped
+    
+    volumes:
+      - redis_data:/data
+    
+    ports:
+      - "6380:6379"
+    
+    networks:
+      - emo-staging-network
+    
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =============================================================================
+  # EMO Options Bot Application (Staging)
+  # =============================================================================
+  
+  app:
+    image: ghcr.io/your-org/emo-options-bot:staging
+    container_name: emo-app-staging
+    restart: unless-stopped
+    
+    environment:
+      EMO_ENV: staging
+      DB_URL: postgresql://emo_user:${POSTGRES_PASSWORD:-staging_password}@postgres:5432/emo_options_staging
+      REDIS_URL: redis://redis:6379/0
+      ALPACA_KEY_ID: ${ALPACA_KEY_ID}
+      ALPACA_SECRET_KEY: ${ALPACA_SECRET_KEY}
+      ALPACA_BASE_URL: ${ALPACA_BASE_URL:-https://paper-api.alpaca.markets}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      TZ: America/New_York
+    
+    volumes:
+      - app_data:/app/data
+      - app_logs:/app/logs
+      - ./config/staging.env:/app/.env.staging:ro
+    
+    ports:
+      - "8083:8082"
+    
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    
+    networks:
+      - emo-staging-network
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # =============================================================================
+  # Background Worker (Staging)
+  # =============================================================================
+  
+  worker:
+    image: ghcr.io/your-org/emo-options-bot:staging
+    container_name: emo-worker-staging
+    restart: unless-stopped
+    
+    environment:
+      EMO_ENV: staging
+      DB_URL: postgresql://emo_user:${POSTGRES_PASSWORD:-staging_password}@postgres:5432/emo_options_staging
+      REDIS_URL: redis://redis:6379/0
+      ALPACA_KEY_ID: ${ALPACA_KEY_ID}
+      ALPACA_SECRET_KEY: ${ALPACA_SECRET_KEY}
+      ALPACA_BASE_URL: ${ALPACA_BASE_URL:-https://paper-api.alpaca.markets}
+      TZ: America/New_York
+    
+    volumes:
+      - app_data:/app/data
+      - app_logs:/app/logs
+      - ./config/staging.env:/app/.env.staging:ro
+    
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    
+    networks:
+      - emo-staging-network
+    
+    command: ["worker"]
+
+  # =============================================================================
+  # Data Ingestion Service (Staging)
+  # =============================================================================
+  
+  data-ingestion:
+    image: ghcr.io/your-org/emo-options-bot:staging
+    container_name: emo-data-ingestion-staging
+    restart: unless-stopped
+    
+    environment:
+      EMO_ENV: staging
+      DB_URL: postgresql://emo_user:${POSTGRES_PASSWORD:-staging_password}@postgres:5432/emo_options_staging
+      REDIS_URL: redis://redis:6379/0
+      ALPACA_KEY_ID: ${ALPACA_KEY_ID}
+      ALPACA_SECRET_KEY: ${ALPACA_SECRET_KEY}
+      ALPACA_BASE_URL: ${ALPACA_BASE_URL:-https://paper-api.alpaca.markets}
+      POLYGON_API_KEY: ${POLYGON_API_KEY}
+      TZ: America/New_York
+    
+    volumes:
+      - app_data:/app/data
+      - app_logs:/app/logs
+      - ./config/staging.env:/app/.env.staging:ro
+    
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    
+    networks:
+      - emo-staging-network
+    
+    command: ["data-ingestion"]
+
+  # =============================================================================
+  # Monitoring (Staging)
+  # =============================================================================
+  
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: emo-prometheus-staging
+    restart: unless-stopped
+    
+    volumes:
+      - ./config/prometheus.staging.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    
+    ports:
+      - "9091:9090"
+    
+    networks:
+      - emo-staging-network
+
+# =============================================================================
+# Networks and Volumes
+# =============================================================================
+
+networks:
+  emo-staging-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  app_data:
+    driver: local
+  app_logs:
+    driver: local
+  prometheus_data:
+    driver: local

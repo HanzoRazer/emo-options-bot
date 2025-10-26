@@ -1,0 +1,117 @@
+{
+  "session": {
+    "session_id": "session_20251025_033548",
+    "start_time": "2025-10-25 03:35:48.628925",
+    "commands_processed": 6,
+    "errors_count": 0,
+    "last_activity": "2025-10-25 03:35:48.652045",
+    "user_preferences": {},
+    "command_history": [
+      {
+        "timestamp": "2025-10-25T03:35:48.631252",
+        "command": "Build an iron condor on SPY with 30 DTE",
+        "intent": {
+          "kind": "build_strategy",
+          "symbol": "SPY",
+          "strategy": "iron_condor",
+          "params": {
+            "dte": 30,
+            "risk_level": "moderate"
+          }
+        },
+        "status": "success",
+        "message": "Plan is ready for approval when you enable staging.",
+        "processing_time": 0.002573
+      },
+      {
+        "timestamp": "2025-10-25T03:35:48.636941",
+        "command": "Create strategy on INVALIDTICKER",
+        "intent": {
+          "kind": "unknown",
+          "symbol": null,
+          "strategy": null,
+          "params": {
+            "risk_level": "moderate"
+          }
+        },
+        "status": "warning",
+        "message": "I didn't understand that command. Try 'help' for available commands.",
+        "processing_time": 0.000859
+      },
+      {
+        "timestamp": "2025-10-25T03:35:48.641912",
+        "command": "Make money with options",
+        "intent": {
+          "kind": "unknown",
+          "symbol": null,
+          "strategy": null,
+          "params": {
+            "risk_level": "moderate"
+          }
+        },
+        "status": "warning",
+        "message": "I didn't understand that command. Try 'help' for available commands.",
+        "processing_time": 0.000856
+      },
+      {
+        "timestamp": "2025-10-25T03:35:48.644991",
+        "command": "Put entire portfolio in TSLA options expiring tomorrow",
+        "intent": {
+          "kind": "unknown",
+          "symbol": "TSLA",
+          "strategy": null,
+          "params": {
+            "risk_level": "moderate"
+          }
+        },
+        "status": "warning",
+        "message": "I didn't understand that command. Try 'help' for available commands.",
+        "processing_time": 0.001028
+      },
+      {
+        "timestamp": "2025-10-25T03:35:48.648478",
+        "command": "",
+        "intent": {
+          "kind": "unknown",
+          "symbol": null,
+          "strategy": null,
+          "params": {
+            "risk_level": "moderate"
+          }
+        },
+        "status": "warning",
+        "message": "I didn't understand that command. Try 'help' for available commands.",
+        "processing_time": 0.000673
+      },
+      {
+        "timestamp": "2025-10-25T03:35:48.652045",
+        "command": "status",
+        "intent": {
+          "kind": "status",
+          "symbol": null,
+          "strategy": null,
+          "params": {
+            "risk_level": "moderate"
+          }
+        },
+        "status": "success",
+        "message": "Status displayed",
+        "processing_time": 1.051702
+      }
+    ]
+  },
+  "config": {
+    "api_host": "127.0.0.1",
+    "api_port": 8086,
+    "default_netliq": 100000.0,
+    "max_position_pct": 0.02,
+    "voice_enabled": false,
+    "log_level": "DEBUG",
+    "session_timeout": 3600,
+    "max_retries": 2,
+    "command_history_limit": 100,
+    "auto_save_session": true,
+    "data_dir": "data/agent_sessions"
+  },
+  "saved_at": "2025-10-25T03:35:49.704056"
+}

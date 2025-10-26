@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMO Options Bot Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar h1 {
+            display: inline-block;
+            font-size: 1.5rem;
+        }
+        
+        .navbar .status-indicator {
+            float: right;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-healthy { background: #27ae60; }
+        .status-warning { background: #f39c12; }
+        .status-error { background: #e74c3c; }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .card-icon {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .metric-large {
+            font-size: 2rem !important;
+            color: #2c3e50;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-healthy {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .badge-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f1b0b7;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            transition: width 0.3s ease;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        th, td {
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .timestamp {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        
+        .chart-container {
+            height: 200px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            margin-top: 1rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+        
+        .refresh-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .refresh-button:hover {
+            background: #0056b3;
+            transform: scale(1.1);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .navbar {
+                padding: 1rem;
+            }
+            
+            .navbar .status-indicator {
+                float: none;
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>🎯 EMO Options Bot Dashboard</h1>
+        <div class="status-indicator">
+            <span id="system-status-text">Checking...</span>
+            <div id="system-status-dot" class="status-dot status-warning"></div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div id="dashboard-content" class="loading">
+            <h2>Loading dashboard...</h2>
+            <p>Please wait while we fetch the latest data.</p>
+        </div>
+    </div>
+    
+    <button class="refresh-button" onclick="refreshDashboard()" title="Refresh Dashboard">
+        ↻
+    </button>
+    
+    <script>
+        let isRefreshing = false;
+        
+        async function fetchData(endpoint) {
+            try {
+                const response = await fetch(`/api/${endpoint}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(`Failed to fetch ${endpoint}:`, error);
+                return null;
+            }
+        }
+        
+        function updateSystemStatus(health) {
+            const statusText = document.getElementById('system-status-text');
+            const statusDot = document.getElementById('system-status-dot');
+            
+            if (health && health.overall_status) {
+                const status = health.overall_status;
+                statusText.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                statusDot.className = `status-dot status-${status}`;
+            } else {
+                statusText.textContent = 'Error';
+                statusDot.className = 'status-dot status-error';
+            }
+        }
+        
+        function createCard(title, icon, content) {
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">${icon}</span>
+                        <h3 class="card-title">${title}</h3>
+                    </div>
+                    ${content}
+                </div>
+            `;
+        }
+        
+        function createMetricRow(label, value, isLarge = false) {
+            const valueClass = isLarge ? 'metric-value metric-large' : 'metric-value';
+            return `
+                <div class="metric-row">
+                    <span class="metric-label">${label}</span>
+                    <span class="${valueClass}">${value}</span>
+                </div>
+            `;
+        }
+        
+        function createStatusBadge(status) {
+            return `<span class="status-badge badge-${status}">${status}</span>`;
+        }
+        
+        function createProgressBar(percentage) {
+            return `
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${percentage}%"></div>
+                </div>
+            `;
+        }
+        
+        function renderSystemHealth(health) {
+            if (!health) {
+                return createCard('🔧 System Health', '⚠️', 
+                    '<div class="alert alert-warning">Health data unavailable</div>');
+            }
+            
+            const status = health.overall_status || 'unknown';
+            const score = (health.health_score || 0) * 100;
+            
+            let content = `
+                ${createMetricRow('Overall Status', createStatusBadge(status))}
+                ${createMetricRow('Health Score', `${score.toFixed(1)}%`)}
+                ${createProgressBar(score)}
+            `;
+            
+            if (health.components) {
+                content += '<h4 style="margin-top: 1rem; margin-bottom: 0.5rem;">Components</h4>';
+                for (const [name, comp] of Object.entries(health.components)) {
+                    const displayName = name.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    content += createMetricRow(displayName, createStatusBadge(comp.status || 'unknown'));
+                }
+            }
+            
+            return createCard('System Health', '🔧', content);
+        }
+        
+        function renderMLOutlook(outlook) {
+            if (!outlook) {
+                return createCard('ML Outlook', '🧠', 
+                    '<div class="alert alert-info">No ML outlook available. Run the ML outlook script to generate predictions.</div>');
+            }
+            
+            const ensemble = outlook.ensemble || {};
+            const signal = ensemble.signal || 0;
+            const confidence = ensemble.confidence || 0;
+            
+            let content = `
+                ${createMetricRow('Symbol', outlook.symbol || 'N/A')}
+                ${createMetricRow('Signal', signal.toFixed(3), true)}
+                ${createMetricRow('Confidence', confidence.toFixed(3))}
+            `;
+            
+            if (outlook.summary) {
+                content += `<p style="margin-top: 1rem;"><strong>Summary:</strong> ${outlook.summary}</p>`;
+            }
+            
+            if (outlook.models && outlook.models.length > 0) {
+                content += `
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr><th>Model</th><th>Signal</th><th>Confidence</th></tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                outlook.models.forEach(model => {
+                    content += `
+                        <tr>
+                            <td>${model.name || 'Unknown'}</td>
+                            <td>${(model.signal || 0).toFixed(3)}</td>
+                            <td>${(model.conf || 0).toFixed(3)}</td>
+                        </tr>
+                    `;
+                });
+                
+                content += '</tbody></table></div>';
+            }
+            
+            if (outlook.ts) {
+                content += `<div class="timestamp">Updated: ${new Date(outlook.ts).toLocaleString()}</div>`;
+            }
+            
+            return createCard('ML Outlook', '🧠', content);
+        }
+        
+        function renderPortfolioSummary(portfolio) {
+            if (!portfolio) {
+                return createCard('Portfolio Summary', '💼', 
+                    '<div class="alert alert-warning">Portfolio data unavailable</div>');
+            }
+            
+            const orders = portfolio.orders || {};
+            const risk = portfolio.risk || {};
+            const db = portfolio.database || {};
+            
+            let content = `
+                <h4>Orders (Last 7 days)</h4>
+                ${createMetricRow('Total Orders', orders.total || 0)}
+                ${createMetricRow('Pending', orders.pending || 0)}
+                ${createMetricRow('Executed', orders.executed || 0)}
+                
+                <h4 style="margin-top: 1rem;">Risk Management</h4>
+                ${createMetricRow('Total Violations', risk.total_violations || 0)}
+                ${createMetricRow('Critical Violations', risk.critical_violations || 0)}
+                
+                <h4 style="margin-top: 1rem;">Database</h4>
+                ${createMetricRow('Status', createStatusBadge(db.status || 'unknown'))}
+                ${createMetricRow('Size', `${(db.size_mb || 0).toFixed(1)} MB`)}
+                ${createMetricRow('Tables', db.tables || 0)}
+            `;
+            
+            if (portfolio.last_updated) {
+                content += `<div class="timestamp">Updated: ${new Date(portfolio.last_updated).toLocaleString()}</div>`;
+            }
+            
+            return createCard('Portfolio Summary', '💼', content);
+        }
+        
+        function renderMLPerformance(performance) {
+            if (!performance) {
+                return createCard('ML Performance', '📈', 
+                    '<div class="alert alert-warning">Performance data unavailable</div>');
+            }
+            
+            let content = `
+                ${createMetricRow('Total Predictions', performance.total_predictions || 0)}
+                ${createMetricRow('Average Confidence', (performance.avg_confidence || 0).toFixed(3))}
+            `;
+            
+            if (performance.models && performance.models.length > 0) {
+                content += `
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr><th>Model</th><th>Avg Confidence</th><th>Predictions</th></tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                performance.models.forEach(model => {
+                    content += `
+                        <tr>
+                            <td>${model.name || 'Unknown'}</td>
+                            <td>${(model.avg_confidence || 0).toFixed(3)}</td>
+                            <td>${model.prediction_count || 0}</td>
+                        </tr>
+                    `;
+                });
+                
+                content += '</tbody></table></div>';
+            }
+            
+            return createCard('ML Performance', '📈', content);
+        }
+        
+        async function loadDashboard() {
+            try {
+                // Fetch all data in parallel
+                const [health, outlook, portfolio, performance] = await Promise.all([
+                    fetchData('system-health'),
+                    fetchData('ml-outlook'),
+                    fetchData('portfolio-summary'),
+                    fetchData('ml-performance')
+                ]);
+                
+                // Update system status in navbar
+                updateSystemStatus(health);
+                
+                // Render dashboard cards
+                const dashboardHtml = `
+                    <div class="dashboard-grid">
+                        ${renderSystemHealth(health)}
+                        ${renderMLOutlook(outlook)}
+                        ${renderPortfolioSummary(portfolio)}
+                        ${renderMLPerformance(performance)}
+                    </div>
+                `;
+                
+                document.getElementById('dashboard-content').innerHTML = dashboardHtml;
+                
+            } catch (error) {
+                console.error('Failed to load dashboard:', error);
+                document.getElementById('dashboard-content').innerHTML = `
+                    <div class="alert alert-warning">
+                        <h3>⚠️ Dashboard Error</h3>
+                        <p>Failed to load dashboard data. This might be because:</p>
+                        <ul>
+                            <li>The FastAPI server is not running</li>
+                            <li>The database is not accessible</li>
+                            <li>Network connectivity issues</li>
+                        </ul>
+                        <p><strong>To resolve:</strong></p>
+                        <ol>
+                            <li>Start the dashboard server: <code>python dashboard/enhanced_dashboard.py --mode serve</code></li>
+                            <li>Or generate a static dashboard: <code>python dashboard/enhanced_dashboard.py --mode generate</code></li>
+                        </ol>
+                    </div>
+                `;
+                
+                // Update status indicator
+                updateSystemStatus(null);
+            }
+        }
+        
+        async function refreshDashboard() {
+            if (isRefreshing) return;
+            
+            isRefreshing = true;
+            const button = document.querySelector('.refresh-button');
+            button.style.transform = 'rotate(360deg)';
+            
+            try {
+                await loadDashboard();
+            } finally {
+                setTimeout(() => {
+                    button.style.transform = '';
+                    isRefreshing = false;
+                }, 500);
+            }
+        }
+        
+        // Initialize dashboard
+        loadDashboard();
+        
+        // Auto-refresh every 5 minutes
+        setInterval(loadDashboard, 5 * 60 * 1000);
+        
+        // Handle WebSocket connection for real-time updates
+        function connectWebSocket() {
+            try {
+                const ws = new WebSocket(`ws://${window.location.host}/ws`);
+                
+                ws.onmessage = function(event) {
+                    const message = JSON.parse(event.data);
+                    if (message.type === 'health_update') {
+                        updateSystemStatus(message.data);
+                    }
+                };
+                
+                ws.onclose = function() {
+                    // Reconnect after 30 seconds
+                    setTimeout(connectWebSocket, 30000);
+                };
+                
+            } catch (error) {
+                console.log('WebSocket not available, using polling mode');
+            }
+        }
+        
+        // Try to connect WebSocket
+        connectWebSocket();
+    </script>
+</body>
+</html>

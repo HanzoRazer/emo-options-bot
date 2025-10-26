@@ -1,0 +1,22 @@
+{
+  "staging_disabled": "Mise en scène des commandes désactivée (définir EMO_STAGE_ORDERS=1 pour activer).",
+  "yaml_missing": "PyYAML n'est pas installé. Utilisation de JSON pour les brouillons.",
+  "draft_written": "Brouillon enregistré dans {path}",
+  "order_staged": "✅ Commande mise en scène avec succès",
+  "invalid_side": "❌ Côté de commande invalide: {side}. Doit être 'buy' ou 'sell'",
+  "invalid_order_type": "❌ Type de commande invalide: {order_type}. Doit être 'market' ou 'limit'",
+  "missing_limit_price": "❌ Prix limite requis pour les ordres limites",
+  "invalid_quantity": "❌ Quantité invalide: {qty}. Doit être un nombre positif",
+  "invalid_symbol": "❌ Symbole invalide: {symbol}. Le symbole ne peut pas être vide",
+  "staging_error": "❌ Erreur lors de la mise en scène de la commande: {error}",
+  "cli_help": "Mettre en scène un fichier brouillon de commande",
+  "cli_symbol_help": "Symbole de trading (ex., AAPL, SPY)",
+  "cli_side_help": "Côté de l'ordre: buy ou sell",
+  "cli_qty_help": "Quantité à négocier",
+  "cli_type_help": "Type d'ordre: market ou limit",
+  "cli_limit_help": "Prix limite (requis pour les ordres limites)",
+  "cli_tif_help": "Durée de validité (par défaut: day)",
+  "cli_strategy_help": "Nom de la stratégie de trading",
+  "cli_format_help": "Format de sortie: yaml ou json",
+  "cli_lang_help": "Langue pour les messages"
+}

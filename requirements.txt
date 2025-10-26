@@ -1,0 +1,42 @@
+# Core requirements for EMO Options Bot
+# Base dependencies required for all environments
+
+# ====== Core Framework ======
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+click>=8.0.0
+
+# ====== Data Science Stack ======
+pandas>=2.0.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+scipy>=1.10.0
+
+# ====== Database & ORM ======
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0  # PostgreSQL/TimescaleDB
+alembic>=1.12.0         # Database migrations
+
+# ====== Web & API ======
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+jinja2>=3.1.0
+requests>=2.31.0
+
+# ====== Trading & Market Data ======
+alpaca-trade-api>=3.0.0
+websocket-client>=1.6.0
+
+# ====== Utilities ======
+schedule>=1.2.0
+python-dateutil>=2.8.0
+pytz>=2023.3
+
+# ====== Enhanced Components (Optional) ======
+# Voice Interface (optional)
+SpeechRecognition>=3.10.0  # Voice input
+pyttsx3>=2.90              # Text-to-speech
+pyaudio>=0.2.11            # Audio processing (may require system dependencies)
+
+# Enhanced Validation
+validators>=0.20.0         # Input validation utilities

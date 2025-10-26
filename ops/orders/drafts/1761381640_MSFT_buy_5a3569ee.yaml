@@ -1,0 +1,15 @@
+schema: emo_order_draft/v1
+created_ts: '2025-10-25T08:40:40.928131+00:00'
+symbol: MSFT
+side: buy
+qty: 10
+order_type: market
+time_in_force: day
+limit_price: null
+strategy: test
+meta: {}
+language: fr
+status: DRAFT
+created_by: emo_stage_order_client
+version: 1.0.0
+signature: f8783edb6d1ffcd5

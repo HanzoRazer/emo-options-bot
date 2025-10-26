@@ -1,0 +1,13 @@
+{
+  "strategy_type": "iron_condor",
+  "symbol": "SPY",
+  "expiration": "2025-12-19",
+  "legs": [
+    {"action":"sell","instrument":"put","strike":440,"quantity":1},
+    {"action":"buy","instrument":"put","strike":435,"quantity":1},
+    {"action":"sell","instrument":"call","strike":460,"quantity":1},
+    {"action":"buy","instrument":"call","strike":465,"quantity":1}
+  ],
+  "risk_constraints": {"max_loss": 500, "max_trade_risk_pct": 0.02},
+  "notes": "example plan"
+}
