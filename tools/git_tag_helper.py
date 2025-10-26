@@ -61,14 +61,17 @@ def git_is_clean():
 
 def detect_signing():
     # If GPG key exists in git config, try signing
-    res = run(["git", "config", "--get", "user.signingkey"], capture=True)
-    key = res.stdout.strip()
-    if not key:
-        return False
-    # quick check for gpg presence
     try:
-        run(["gpg", "--list-secret-keys"], check=True, capture=True)
-        return True
+        res = run(["git", "config", "--get", "user.signingkey"], check=False, capture=True)
+        key = res.stdout.strip()
+        if not key or res.returncode != 0:
+            return False
+        # quick check for gpg presence
+        try:
+            run(["gpg", "--list-secret-keys"], check=True, capture=True)
+            return True
+        except Exception:
+            return False
     except Exception:
         return False
 
