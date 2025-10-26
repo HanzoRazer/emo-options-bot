@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "created_utc": "2025-10-26T23:37:11.727746+00:00",
+  "type": "trade_draft",
+  "trade": {
+    "symbol": "SPY",
+    "strategy_type": "test",
+    "action": "demo"
+  },
+  "meta": {
+    "test": "json_format"
+  }
+}

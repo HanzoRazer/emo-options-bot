@@ -1,0 +1,27 @@
+version: 1
+created_utc: '2025-10-26T23:34:44.218029+00:00'
+type: trade_draft
+trade:
+  symbol: SPY
+  strategy_type: iron_condor
+  legs:
+  - action: sell
+    instrument: put
+    strike: 440
+    qty: 1
+  - action: buy
+    instrument: put
+    strike: 435
+    qty: 1
+  - action: sell
+    instrument: call
+    strike: 460
+    qty: 1
+  - action: buy
+    instrument: call
+    strike: 465
+    qty: 1
+  risk_constraints:
+    max_loss: 500
+meta:
+  test: release_check

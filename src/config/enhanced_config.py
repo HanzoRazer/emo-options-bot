@@ -36,6 +36,11 @@ class EnvironmentConfig:
     emo_live_data: bool = False
     emo_symbols: List[str] = None
     
+    # Order Staging (Patch #15)
+    stage_orders: bool = True
+    drafts_dir: str = "src/ops/drafts"
+    drafts_format: str = "yaml"
+    
     # Services
     emo_health_port: int = 8082
     emo_dashboard_port: int = 8083
@@ -86,6 +91,10 @@ class EnvironmentConfig:
             emo_stage_orders=get_bool("EMO_STAGE_ORDERS", True),
             emo_live_data=get_bool("EMO_LIVE_DATA", False),
             emo_symbols=get_list("EMO_SYMBOLS", ["SPY", "QQQ", "IWM"]),
+            # Order Staging (Patch #15)
+            stage_orders=get_bool("EMO_STAGE_ORDERS", True),
+            drafts_dir=env_dict.get("EMO_DRAFTS_DIR", "src/ops/drafts"),
+            drafts_format=env_dict.get("EMO_DRAFTS_FORMAT", "yaml"),
             emo_health_port=get_int("EMO_HEALTH_PORT", 8082),
             emo_dashboard_port=get_int("EMO_DASHBOARD_PORT", 8083),
             emo_log_level=env_dict.get("EMO_LOG_LEVEL", "INFO"),
@@ -246,6 +255,9 @@ def get_config_value(key: str, default: Any = None) -> Any:
     """Get a single configuration value (legacy compatibility)"""
     config = load_config()
     return getattr(config, key.lower(), default)
+
+# Global SETTINGS object for easy access
+SETTINGS = load_config()
 
 if __name__ == "__main__":
     # CLI for configuration testing
