@@ -76,7 +76,7 @@ config = Config(
 # Bad: Hard-code API keys
 config = Config(
     ai=AIConfig(
-        openai_api_key="sk-xxxxxxxxxxxxx"  # NEVER DO THIS
+        openai_api_key="your-api-key-here"  # NEVER DO THIS
     )
 )
 ```

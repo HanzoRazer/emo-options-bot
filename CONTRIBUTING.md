@@ -223,7 +223,7 @@ We welcome contributions in these areas:
 
 **Do not open public issues for security vulnerabilities.**
 
-Email security concerns to: [maintainer email]
+Email security concerns to: See repository owner's GitHub profile for contact information
 
 ### Security Best Practices
 
