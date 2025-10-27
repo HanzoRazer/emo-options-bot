@@ -1,0 +1,19 @@
+policy_version: "2025-10-27"
+risk:
+  max_positions: 20
+  max_risk_pct_trade: 0.02
+  max_portfolio_risk_pct: 0.10
+  max_daily_new_risk_pct: 0.04
+  max_slippage_bps: 25
+  symbol_exposure_pct: 0.10
+events:
+  block_earnings: true
+  block_macro: true
+strategies:
+  iron_condor: { ivr_min: 0.30, ivr_max: 0.80, dte_min: 30, dte_max: 45, auto_eligible: true, qty_cap: 2 }
+  put_credit_spread: { ivr_min: 0.25, dte_min: 25, dte_max: 40, auto_eligible: true, qty_cap: 3 }
+  covered_call: { dte_min: 20, dte_max: 35, auto_eligible: true, qty_cap: 2 }
+  protective_put: { ivr_max: 0.35, dte_min: 20, dte_max: 45, auto_eligible: false }
+  long_straddle: { ivr_min: 0.55, dte_min: 20, dte_max: 35, auto_eligible: false }
+windows:
+  autopromo: "US_RTH"

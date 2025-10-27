@@ -345,3 +345,49 @@ if __name__ == "__main__":
         # Default: just print the URL
         url = db_url_from_env(cfg)
         print(url)
+
+
+# ============================================================================
+# Phase 3 Smoke Test Interface
+# ============================================================================
+
+class DBRouter:
+    """Phase 3 compatible database router wrapper"""
+    
+    def __init__(self, env: Optional[str] = None):
+        from src.utils.enhanced_config import Config
+        self.env = env or os.getenv("EMO_ENV", "development")
+        self.config = Config()
+        self._engine = None
+    
+    def connect(self):
+        """Get database connection compatible with Phase 3 smoke tests"""
+        if self._engine is None:
+            self._engine = get_engine(self.config)
+        
+        # Return raw connection for SQLite compatibility
+        return self._engine.raw_connection()
+    
+    def health_check(self) -> dict:
+        """Check database health"""
+        try:
+            engine = get_engine(self.config)
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            
+            return {
+                "status": "healthy",
+                "environment": self.env,
+                "backend": "sqlite" if "sqlite" in str(engine.url) else "postgresql"
+            }
+        except Exception as e:
+            return {
+                "status": "unhealthy", 
+                "environment": self.env,
+                "error": str(e)
+            }
+
+def get_conn():
+    """Simple connection function for Phase 3 smoke tests"""
+    router = DBRouter()
+    return router.connect()

@@ -1,4 +1,4 @@
-name: CI
+name: CI - Production Patch Set
 
 on:
   push:
@@ -8,6 +8,19 @@ on:
 
 jobs:
   build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install -r requirements.txt || true
+      - run: pip install pydantic SQLAlchemy pytest || true
+      # Try Lua (optional). Tests still pass without it due to graceful fallback.
+      - name: Install Lua (optional)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lua5.4 || true
+      - run: pytest -q
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

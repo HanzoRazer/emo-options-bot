@@ -3,10 +3,17 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+[![Phase 3 Complete](https://img.shields.io/badge/Phase%203-Complete-success.svg)]()
+[![Phase 4 Ready](https://img.shields.io/badge/Phase%204-Ready-blue.svg)]()
 
 ## 🚀 Overview
 
 EMO Options Bot v2.0 is a comprehensive, institutional-grade options trading system with advanced database management, real-time monitoring, and professional-grade infrastructure.
+
+**🎯 Current Status: Phase 3 Complete → Phase 4 Ready**  
+- ✅ Production patch set applied with fail-closed safety
+- ✅ Stage-only integration operational  
+- 🚀 Ready for [Phase 4 Auto-Promotion Sprint](PHASE4_INITIALIZATION_SPRINT_PLAN.md)
 
 ### 🌟 Key Features
 
@@ -18,6 +25,27 @@ EMO Options Bot v2.0 is a comprehensive, institutional-grade options trading sys
 - **📈 Institutional Integration**: Enterprise-grade order management and approval workflows
 - **🔄 Backup & Recovery**: Comprehensive data backup and restore capabilities
 - **⚡ Performance Optimized**: Efficient database operations and caching
+- **🎭 Phase 3 Components**: LLM orchestration, risk gates, Lua strategies, voice interface
+
+## 🛣️ Phase 4 Roadmap - Auto-Promotion Sprint
+
+**🎯 Next Phase: Stage-Only → Adaptive Auto-Promotion**
+
+The system is ready for the [Phase 4 Initialization Sprint Plan](PHASE4_INITIALIZATION_SPRINT_PLAN.md) - a 6-week roadmap to transition from manual staging to controlled auto-promotion.
+
+### Phase 4 Key Milestones:
+- **Week 1-2**: Infrastructure hardening + promotion engine
+- **Week 3-4**: Paper trading integration + adaptive feedback
+- **Week 5-6**: Voice interface + compliance audit
+
+### Current Phase 3 Status:
+- ✅ **Stage-Only Integration** - Trades staged to `data/staged/` safely
+- ✅ **Risk Gates** - Fail-closed validation with comprehensive checks
+- ✅ **Production Safety** - Pydantic schemas + environment routing
+- ✅ **Lua Strategies** - Sandboxed execution with graceful fallback
+- ✅ **Test Coverage** - Contract tests passing
+
+🔗 **[📋 View Full Phase 4 Sprint Plan →](PHASE4_INITIALIZATION_SPRINT_PLAN.md)**
 
 ## 🏗️ Architecture
 

@@ -1,0 +1,63 @@
+{
+  "plan": {
+    "strategy": "iron_condor",
+    "underlying": "SPY",
+    "rationale": "demo",
+    "notes": [
+      "nl:I think SPY will be range-bound; propose a safe premium strategy"
+    ],
+    "legs": [
+      {
+        "symbol": "SPY",
+        "side": "sell",
+        "instrument": "call",
+        "strike": 470.0,
+        "expiry": "2025-12-20",
+        "quantity": 1,
+        "price_limit": null
+      },
+      {
+        "symbol": "SPY",
+        "side": "buy",
+        "instrument": "call",
+        "strike": 475.0,
+        "expiry": "2025-12-20",
+        "quantity": 1,
+        "price_limit": null
+      },
+      {
+        "symbol": "SPY",
+        "side": "sell",
+        "instrument": "put",
+        "strike": 430.0,
+        "expiry": "2025-12-20",
+        "quantity": 1,
+        "price_limit": null
+      },
+      {
+        "symbol": "SPY",
+        "side": "buy",
+        "instrument": "put",
+        "strike": 425.0,
+        "expiry": "2025-12-20",
+        "quantity": 1,
+        "price_limit": null
+      }
+    ],
+    "risk": {
+      "max_risk_dollars": null,
+      "max_risk_pct_equity": 0.02,
+      "max_positions": 20,
+      "max_symbol_exposure_pct": 0.1,
+      "min_ivr": null,
+      "max_ivr": null
+    },
+    "telemetry": {}
+  },
+  "approved": false,
+  "gate_outcome": {
+    "ok": true,
+    "violations": [],
+    "suggested_fixes": []
+  }
+}

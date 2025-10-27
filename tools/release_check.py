@@ -28,6 +28,10 @@ SRC  = ROOT / "src"
 if SRC.exists() and str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
+# Add root directory for Phase 3 modules in development
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 # -------- util helpers --------------------------------------------------------
 class CheckResult:
     def __init__(self, name: str, ok: bool, info: str = ""):

@@ -47,9 +47,6 @@ class Phase3TradingSystem:
     def _init_components(self):
         """Initialize all Phase 3 components"""
         try:
-            # Set voice mode first
-            self.voice_mode = self.config.get("voice_mode", False)
-            
             # Core components
             self.orchestrator = Orchestrator(
                 provider=self.config.get("llm_provider", "mock")
@@ -71,10 +68,6 @@ class Phase3TradingSystem:
         except Exception as e:
             print(f"Error initializing components: {e}")
             self.components_healthy = False
-            # Set fallback attributes to prevent AttributeError
-            self.voice_interface = None
-            self.prompt_manager = None
-            self.db_router = None
     
     def process_request(self, user_input: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
