@@ -40,8 +40,8 @@ def test_risk_integration():
     
     # Test order validation
     test_order = OrderIntent(symbol="AAPL", side="buy", est_max_loss=2000, est_value=10000)
-    violations = risk_manager.validate_order(portfolio, test_order)
-    print(f"   Order validation: {'PASSED' if not violations else 'FAILED'} ({len(violations)} violations)")
+    is_valid, violations = risk_manager.validate_order(test_order, portfolio)
+    print(f"   Order validation: {'PASSED' if is_valid else 'FAILED'} ({len(violations)} violations)")
     
     return True
 

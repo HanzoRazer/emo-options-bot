@@ -332,7 +332,34 @@ class EnhancedDB:
             yield cur
         finally:
             cur.close()
-    
+
+    def upsert_bars(self, rows):
+        if not rows:
+            return 0
+        if self.kind == "sqlite":
+            with contextlib.closing(self.conn.cursor()) as cur:
+                cur.executemany("""
+                    INSERT INTO bars(symbol, ts, open, high, low, close, volume)
+                    VALUES (:symbol, :ts, :open, :high, :low, :close, :volume)
+                    ON CONFLICT(symbol, ts) DO UPDATE SET
+                        open=excluded.open, high=excluded.high, low=excluded.low,
+                        close=excluded.close, volume=excluded.volume
+                """, rows)
+            self.conn.commit()
+            return len(rows)
+        else:
+            import psycopg2.extras
+            with self.conn.cursor() as cur:
+                psycopg2.extras.execute_batch(cur, """
+                    INSERT INTO bars(symbol, ts, open, high, low, close, volume)
+                    VALUES (%(symbol)s, %(ts)s, %(open)s, %(high)s, %(low)s, %(close)s, %(volume)s)
+                    ON CONFLICT(symbol, ts) DO UPDATE SET
+                        open=EXCLUDED.open, high=EXCLUDED.high, low=EXCLUDED.low,
+                        close=EXCLUDED.close, volume=EXCLUDED.volume
+                """, rows)
+            self.conn.commit()
+            return len(rows)
+
     def close(self):
         """Close database connection."""
         if self.conn:

@@ -325,7 +325,7 @@ class TestEnvironmentValidator(BaseTestCase):
                         validator = EnvironmentValidator(env)
                         
                         # Test basic validation
-                        result = validator.validate_basic_config()
+                        result = validator.validate_environment_variables()
                         self.assertIsInstance(result, bool)
                         
         except ImportError:
@@ -337,10 +337,10 @@ class TestEnvironmentValidator(BaseTestCase):
             from tools.validate_env import EnvironmentValidator
             
             with patch.dict(os.environ, self.create_test_config()):
-                validator = EnvironmentValidator("test")
+                validator = EnvironmentValidator("dev")
                 
                 # Test database validation (should work with SQLite)
-                result = validator.validate_database_connection()
+                result = validator.validate_database_connectivity()
                 self.assertIsInstance(result, bool)
                 
         except ImportError:
