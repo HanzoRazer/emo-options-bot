@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import shlex
 """
 Patch #8 Validation Script
 Comprehensive validation of Phase 3 LLM stack: schemas, orchestrator, synthesizer, gates, and CLI.
@@ -27,7 +28,7 @@ def print_status(message: str, status: str = "info"):
 def run_command(command: str, description: str) -> bool:
     """Run a command and return success status."""
     try:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        result = subprocess.run(shlex.split(command), capture_output=True, text=True)
         if result.returncode == 0:
             print_status(f"{description}: SUCCESS", "success")
             return True
