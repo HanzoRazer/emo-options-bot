@@ -65,5 +65,10 @@ def insert_symbol_row(conn, run_id, row):
             row["skew_25d"], row["term_slope"], row["vix"], row["vix_change"], row["avg_sentiment"],
             row["sent_var"], row["avg_perplexity"], row["perp_z"], row["topic_entropy"])
     with closing(conn.cursor()) as cur:
-        cur.execute(f"INSERT INTO symbols({','.join(cols)}) VALUES ({','.join(['?']*len(cols))})", vals)
+        cur.execute(
+            "INSERT INTO symbols(run_id, symbol, close, ret_5m, atrp, vol_z, ivr, skew_25d, "
+            "term_slope, vix, vix_change, avg_sentiment, sent_var, avg_perplexity, perp_z, topic_entropy) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            vals
+        )
     conn.commit()

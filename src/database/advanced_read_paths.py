@@ -235,8 +235,16 @@ class AdvancedQueryEngine:
                            columns: List[str], 
                            filters: Dict[str, Any] = None,
                            order_by: str = None,
-                           limit: int = 100) -> str:
-        """Build flexible query with column mapping."""
+                           limit: int = 100) -> tuple:
+        """Build flexible query with column mapping.
+        
+        Returns:
+            tuple: (query_string, params_dict) for parameterized execution
+        """
+        # Validate table_name against known tables to prevent injection
+        if not self.schema.has_table(table_name):
+            raise ValueError(f"Unknown table: {table_name}")
+        
         # Map standard column names to actual column names
         mapped_columns = []
         for col in columns:
@@ -244,25 +252,23 @@ class AdvancedQueryEngine:
             if actual_col:
                 mapped_columns.append(f"{actual_col} AS {col}")
             else:
-                # Try to find exact match
                 table_columns = self.schema.get_table_columns(table_name)
                 if col in table_columns:
                     mapped_columns.append(col)
                 else:
-                    # Use COALESCE for fallback
                     mapped_columns.append(f"COALESCE({col}, '') AS {col}")
         
         query_parts = [f"SELECT {', '.join(mapped_columns)}", f"FROM {table_name}"]
+        params = {}
         
-        # Add filters
+        # Add filters with parameterized values
         if filters:
             where_clauses = []
-            for key, value in filters.items():
+            for i, (key, value) in enumerate(filters.items()):
                 actual_col = self.schema.get_column_mapping(table_name, key) or key
-                if isinstance(value, str):
-                    where_clauses.append(f"{actual_col} = '{value}'")
-                else:
-                    where_clauses.append(f"{actual_col} = {value}")
+                param_name = f"p{i}"
+                where_clauses.append(f"{actual_col} = :{param_name}")
+                params[param_name] = value
             
             if where_clauses:
                 query_parts.append(f"WHERE {' AND '.join(where_clauses)}")
@@ -272,10 +278,11 @@ class AdvancedQueryEngine:
             actual_order_col = self.schema.get_column_mapping(table_name, order_by) or order_by
             query_parts.append(f"ORDER BY {actual_order_col} DESC")
         
-        # Add limit
-        query_parts.append(f"LIMIT {limit}")
+        # Add limit as parameter
+        query_parts.append("LIMIT :limit_val")
+        params["limit_val"] = limit
         
-        return " ".join(query_parts)
+        return " ".join(query_parts), params
     
     def execute_query(self, table_name: str, 
                      columns: List[str],
@@ -303,11 +310,11 @@ class AdvancedQueryEngine:
                     total_rows=0
                 )
             
-            # Build and execute query
-            query = self.build_flexible_query(table_name, columns, filters, order_by, limit)
+            # Build and execute query with parameters
+            query, params = self.build_flexible_query(table_name, columns, filters, order_by, limit)
             
             with enhanced_session_scope() as session:
-                result = session.execute(text(query))
+                result = session.execute(text(query), params)
                 rows = [dict(row._mapping) for row in result]
             
             query_time_ms = (time.time() - start_time) * 1000

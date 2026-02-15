@@ -7,6 +7,7 @@ Comprehensive validation of Phase 3 LLM stack: schemas, orchestrator, synthesize
 import os
 import sys
 import subprocess
+import shlex
 from pathlib import Path
 from datetime import datetime
 
@@ -27,7 +28,7 @@ def print_status(message: str, status: str = "info"):
 def run_command(command: str, description: str) -> bool:
     """Run a command and return success status."""
     try:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        result = subprocess.run(shlex.split(command), capture_output=True, text=True)
         if result.returncode == 0:
             print_status(f"{description}: SUCCESS", "success")
             return True

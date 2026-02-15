@@ -8,6 +8,7 @@ import os
 import sys
 import json
 import subprocess
+import shlex
 import datetime as dt
 from pathlib import Path
 
@@ -18,7 +19,7 @@ def run_command(cmd, description):
     print("-" * 50)
     
     try:
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=Path(__file__).parent)
+        result = subprocess.run(shlex.split(cmd), capture_output=True, text=True, cwd=Path(__file__).parent)
         
         if result.returncode == 0:
             print("✅ SUCCESS")
